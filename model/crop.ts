@@ -2,6 +2,7 @@ import {Field} from "./field";
 import {Log} from "./log";
 
 export class Crop {
+    id:number;
     code:string;
     name:string;
     scientificName:string;
@@ -11,7 +12,8 @@ export class Crop {
     assignFields: Field[];
     assignLogs: Log[];
 
-    constructor(code: string, name: string, scientificName: string, category: string, season: string, image: File | null, assignFields: Field[], assignLogs: Log[]) {
+    constructor(id:number, code: string, name: string, scientificName: string, category: string, season: string, image: File | null, assignFields: Field[], assignLogs: Log[]) {
+        this.id = id;
         this.code = code;
         this.name = name;
         this.scientificName = scientificName;

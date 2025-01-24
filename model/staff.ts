@@ -4,6 +4,7 @@ import {Vehicle} from "./vehicle";
 import {Equipment} from "./equipment";
 
 export class Staff {
+    id:number;
     code:string;
     firstName:string;
     lastName:string;
@@ -24,7 +25,8 @@ export class Staff {
     assignVehicles: Vehicle[];
     assignEquipments: Equipment[];
 
-    constructor(code: string, firstName: string, lastName: string, joinedDate: string, designation: string, gender: string, dob: string, addressLine01: string, addressLine02: string, addressLine03: string, addressLine04: string, addressLine05: string, mobile: string, email: string, role: string, assignLog: Log[], assignFields: Field[], assignVehicles: Vehicle[], assignEquipments: Equipment[]) {
+    constructor(id:number, code: string, firstName: string, lastName: string, joinedDate: string, designation: string, gender: string, dob: string, addressLine01: string, addressLine02: string, addressLine03: string, addressLine04: string, addressLine05: string, mobile: string, email: string, role: string, assignLog: Log[], assignFields: Field[], assignVehicles: Vehicle[], assignEquipments: Equipment[]) {
+        this.id = id;
         this.code = code;
         this.firstName = firstName;
         this.lastName = lastName;

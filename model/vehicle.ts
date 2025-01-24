@@ -1,6 +1,7 @@
 import {Staff} from "./staff";
 
 export class Vehicle {
+    id:number;
     code:string;
     licensePlateNumber:string
     vehicleName:string;
@@ -10,7 +11,8 @@ export class Vehicle {
     remark:string;
     assignStaffMember: Staff;
 
-    constructor(code: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaffMember: Staff) {
+    constructor(id:number, code: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaffMember: Staff) {
+        this.id = id;
         this.code = code;
         this.licensePlateNumber = licensePlateNumber;
         this.vehicleName = vehicleName;

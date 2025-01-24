@@ -3,6 +3,7 @@ import {Field} from "./field";
 import {Staff} from "./staff";
 
 export class Log {
+    id:number;
     code:string;
     name: string;
     logDate:string;
@@ -12,7 +13,8 @@ export class Log {
     assignFields: Field[];
     assignStaff: Staff[];
 
-    constructor(code: string, name: string, logDate: string, logDetails: string, image: File | null, assignCrops: Crop[], assignFields: Field[], assignStaff: Staff[]) {
+    constructor(id:number, code: string, name: string, logDate: string, logDetails: string, image: File | null, assignCrops: Crop[], assignFields: Field[], assignStaff: Staff[]) {
+        this.id = id;
         this.code = code;
         this.name = name;
         this.logDate = logDate;
