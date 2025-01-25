@@ -1,25 +1,15 @@
-import {Staff} from "./staff";
+import mongoose from 'mongoose';
 
-export class Vehicle {
-    id:number;
-    code:string;
-    licensePlateNumber:string
-    vehicleName:string;
-    category:string;
-    fuelType:string;
-    status:string;
-    remark:string;
-    assignStaffMember: Staff;
+const vehicleSchema = new mongoose.Schema({
+    vehicleCode: { type: String, required: true },
+    licensePlateNumber: { type: String, required: true },
+    vehicleName: { type: String, required: true },
+    category: { type: String, required: true },
+    fuelType: { type: String, required: true },
+    status: { type: String, required: true },
+    remark: { type: String }
+});
 
-    constructor(id:number, code: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaffMember: Staff) {
-        this.id = id;
-        this.code = code;
-        this.licensePlateNumber = licensePlateNumber;
-        this.vehicleName = vehicleName;
-        this.category = category;
-        this.fuelType = fuelType;
-        this.status = status;
-        this.remark = remark;
-        this.assignStaffMember = assignStaffMember;
-    }
-}
+const Vehicle = mongoose.model('Vehicle', vehicleSchema);
+
+export default Vehicle;
