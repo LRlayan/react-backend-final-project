@@ -1,5 +1,5 @@
 import express from "express";
-import {saveVehicle} from "../database/mongoose-vehicle-data-store";
+import {saveVehicle} from "../database/vehicle-data-store";
 
 const vehicleRoutes = express.Router();
 
