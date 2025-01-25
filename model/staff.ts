@@ -1,50 +1,44 @@
-import {Log} from "./log";
-import {Field} from "./field";
-import {Vehicle} from "./vehicle";
-import {Equipment} from "./equipment";
+import mongoose, { Schema, Document } from 'mongoose';
 
-export class Staff {
-    id:number;
-    code:string;
-    firstName:string;
-    lastName:string;
-    joinedDate:string;
-    designation:string;
-    gender:string;
-    dob:string;
-    addressLine01:string;
-    addressLine02:string;
-    addressLine03:string;
-    addressLine04:string;
-    addressLine05:string;
-    mobile:string;
-    email:string;
-    role:string;
-    assignLog: Log[];
-    assignFields: Field[];
-    assignVehicles: Vehicle[];
-    assignEquipments: Equipment[];
-
-    constructor(id:number, code: string, firstName: string, lastName: string, joinedDate: string, designation: string, gender: string, dob: string, addressLine01: string, addressLine02: string, addressLine03: string, addressLine04: string, addressLine05: string, mobile: string, email: string, role: string, assignLog: Log[], assignFields: Field[], assignVehicles: Vehicle[], assignEquipments: Equipment[]) {
-        this.id = id;
-        this.code = code;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.joinedDate = joinedDate;
-        this.designation = designation;
-        this.gender = gender;
-        this.dob = dob;
-        this.addressLine01 = addressLine01;
-        this.addressLine02 = addressLine02;
-        this.addressLine03 = addressLine03;
-        this.addressLine04 = addressLine04;
-        this.addressLine05 = addressLine05;
-        this.mobile = mobile;
-        this.email = email;
-        this.role = role;
-        this.assignLog = assignLog;
-        this.assignFields = assignFields;
-        this.assignVehicles = assignVehicles;
-        this.assignEquipments = assignEquipments;
-    }
+export interface IStaff extends Document {
+    code: string;
+    firstName: string;
+    lastName: string;
+    joinedDate: string;
+    designation: string;
+    gender: string;
+    dob: string;
+    addressLine01: string;
+    addressLine02: string;
+    addressLine03: string;
+    addressLine04: string;
+    addressLine05: string;
+    mobile: string;
+    email: string;
+    role: string;
+    assignVehicles: mongoose.Types.ObjectId[];
 }
+
+const staffSchema = new Schema<IStaff>({
+    code: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    joinedDate: { type: String, required: true },
+    designation: { type: String, required: true, enum: ["ASSISTANT MANAGER","ADMIN AND HR STAFF","OFFICE ASSISTANT","SENIOR AGRONOMIST","AGRONOMIST","AGRONOMIST","SENIOR TECHNICIAN","TECHNICIAN","SUPERVISOR","LABOUR"]},
+    gender: { type: String, required: true, enum: ['Male','Female'] },
+    dob: { type: String, required: true },
+    addressLine01: { type: String, required: true },
+    addressLine02: { type: String, required: false },
+    addressLine03: { type: String, required: false },
+    addressLine04: { type: String, required: false },
+    addressLine05: { type: String, required: false },
+    mobile: { type: String, required: true },
+    email: { type: String, required: true, match:/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/},
+    role: { type: String, required: true, enum: ['ADMINISTRATIVE', 'MANAGER', 'SCIENTIFIC','OTHER']},
+    assignVehicles: [
+        { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }
+    ]
+});
+
+const Staff = mongoose.model<IStaff>('Staff', staffSchema);
+export default Staff;
