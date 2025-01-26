@@ -1,19 +1,21 @@
 import mongoose, {Document, Schema} from 'mongoose';
 
+export type StatusType = 'Available' | 'Unavailable'
+
 export interface IVehicle extends Document {
     vehicleCode: string;
     licensePlateNumber: string;
     vehicleName: string;
     category: string;
     fuelType: string;
-    status: string;
+    status: StatusType;
     remark: string;
-    assignStaff: mongoose.Types.ObjectId;
+    assignStaff?: mongoose.Types.ObjectId;
 }
 
 const vehicleSchema = new Schema<IVehicle>({
-    vehicleCode: { type: String, required: true },
-    licensePlateNumber: { type: String, required: true },
+    vehicleCode: { type: String, required: true, unique: true},
+    licensePlateNumber: { type: String, required: true, unique: true},
     vehicleName: { type: String, required: true},
     category: { type: String, required: true},
     fuelType: { type: String, required: true},
