@@ -1,6 +1,7 @@
 import express from 'express';
 import vehicleRoutes from "./routes/vehicle-routes";
 import mongoose from "mongoose";
+import staffRoutes from "./routes/staff-routes";
 
 const cors = require('cors');
 const app = express();
@@ -24,7 +25,7 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
 // app.use('/crop');
 // app.use('/field');
 // app.use('/log');
-// app.use('/staff');
+app.use('/staff',staffRoutes);
 // app.use('/equipment');
 app.use('/vehicle',vehicleRoutes);
 
