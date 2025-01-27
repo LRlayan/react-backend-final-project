@@ -1,30 +1,31 @@
 import {Crop} from "./crop";
-import {Log} from "./log";
-import {Staff} from "./staff";
+import Log from "../model/log";
+import Staff from "../model/staff";
 import {Equipment} from "./equipment";
+import mongoose, {Schema} from "mongoose";
 
-export class Field {
-    id: number;
+export interface IField {
     code:string;
     name:string;
     location:string;
     extentSize:string;
     image:File | null;
-    assignCrops: Crop[];
-    assignLogs: Log[];
-    assignStaffMembers: Staff[];
-    assignEquipments: Equipment[];
-
-    constructor(id:number, code: string, name: string, location: string, extentSize: string, image: File | null, assignCrops: Crop[], assignLogs: Log[], assignStaffMembers: Staff[], assignEquipments: Equipment[]) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.location = location;
-        this.extentSize = extentSize;
-        this.image = image;
-        this.assignCrops = assignCrops;
-        this.assignLogs = assignLogs;
-        this.assignStaffMembers = assignStaffMembers;
-        this.assignEquipments = assignEquipments;
-    }
+    // assignCrops: Crop[];
+    assignLogs?: mongoose.Types.ObjectId[];
+    assignStaffMembers?: mongoose.Types.ObjectId[];
+    // assignEquipments: Equipment[];
 }
+
+const fieldSchema = new Schema<IField>({
+    code: {type: String, required: true, unique: true},
+    name: {type: String, required: true},
+    location: {type: String, required: true},
+    extentSize: {type: String, required: true},
+    image: {type: File, required: true},
+    assignLogs: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Log'}
+    ],
+    assignStaffMembers: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Staff'}
+    ]
+});
