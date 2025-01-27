@@ -21,6 +21,7 @@ export interface IStaff extends Document {
     email: string;
     role: RoleType;
     assignVehicles?: mongoose.Types.ObjectId[];
+    assignLogs?:mongoose.Types.ObjectId[];
 }
 
 const staffSchema = new Schema<IStaff>({
@@ -41,6 +42,9 @@ const staffSchema = new Schema<IStaff>({
     role: { type: String, required: true, enum: ['ADMINISTRATIVE', 'MANAGER', 'SCIENTIFIC','OTHER']},
     assignVehicles: [
         { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }
+    ],
+    assignLogs: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Log'}
     ]
 });
 
