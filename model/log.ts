@@ -1,27 +1,26 @@
-import {Crop} from "./crop";
-import {Field} from "./field";
-import {Staff} from "./staff";
+import mongoose, {Schema} from "mongoose";
 
-export class Log {
-    id:number;
+export interface ILog extends Document{
     code:string;
     name: string;
     logDate:string;
     logDetails:string;
     image:File | null;
-    assignCrops: Crop[];
-    assignFields: Field[];
-    assignStaff: Staff[];
-
-    constructor(id:number, code: string, name: string, logDate: string, logDetails: string, image: File | null, assignCrops: Crop[], assignFields: Field[], assignStaff: Staff[]) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.logDate = logDate;
-        this.logDetails = logDetails;
-        this.image = image;
-        this.assignCrops = assignCrops;
-        this.assignFields = assignFields;
-        this.assignStaff = assignStaff;
-    }
+    // assignCrops: Crop[];
+    // assignFields: Field[];
+    assignStaff: mongoose.Types.ObjectId[];
 }
+
+const logSchema = new Schema<ILog>({
+    code: {type: String, required: true, unique: true},
+    name: {type: String, required: true},
+    logDate: {type: String, required: true},
+    logDetails: {type: String, required: true},
+    image: {type: File, required: true},
+    assignStaff: [
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Staff'},
+    ]
+});
+
+const Log = mongoose.model<ILog>('Log', logSchema);
+export default Log;
