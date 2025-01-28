@@ -1,24 +1,27 @@
-import {Staff} from "./staff";
-import {Field} from "./field";
+import mongoose, {Schema} from "mongoose";
+import {StatusType} from "./vehicle";
 
-export class Equipment {
-    id: number;
+export type StatusType = "Available" | "Unavailable";
+
+export interface IEquipment {
     code:string;
     name:string;
-    type:string;
-    status:string;
+    equType:string;
+    status:StatusType;
     count:number;
-    assignStaffMembers: Staff[];
-    assignFields: Field[];
-
-    constructor(id: number, code: string, name: string, type: string, status: string, count: number, assignStaffMembers: Staff[], assignFields: Field[]) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-        this.type = type;
-        this.status = status;
-        this.count = count;
-        this.assignStaffMembers = assignStaffMembers;
-        this.assignFields = assignFields;
-    }
+    assignStaffMembers: mongoose.Types.ObjectId[];
+    assignFields: mongoose.Types.ObjectId[];
 }
+
+const equipmentSchema = new Schema<IEquipment>({
+    code: { type: String, required: true, unique: true},
+    name: { type: String, required: true},
+    equType: { type: String, required: true},
+    status: { type: String, required: true, enum: ["Available", "Unavailable"]},
+    count: { type: Number, required: true},
+    assignStaffMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff"}],
+    assignFields: [{ type: mongoose.Schema.Types.ObjectId, ref: "Field"}]
+});
+
+const Equipment = mongoose.model<any>("Equipment", equipmentSchema);
+export default Equipment;
