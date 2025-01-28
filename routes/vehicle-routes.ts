@@ -1,5 +1,5 @@
 import express from "express";
-import {saveVehicle} from "../database/vehicle-data-store";
+import {saveVehicle} from "../repository/vehicle-repository";
 
 const vehicleRoutes = express.Router();
 
