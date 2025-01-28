@@ -8,7 +8,7 @@ export interface ICrop {
     scientificName:string;
     category:string;
     season:SeasonType;
-    image: Buffer | string | null;
+    image: Buffer;
     assignFields: mongoose.Types.ObjectId[];
     assignLogs:mongoose.Types.ObjectId[];
 }
@@ -19,7 +19,7 @@ const cropSchema = new Schema<ICrop>({
     scientificName: { type: String, required: true},
     category: { type: String, required: true},
     season: { type: String, required: true, enum: ["Yala Season", "Maha Season"]},
-    image: { type: Buffer | String, required: true},
+    image: { type: Buffer, required: true},
     assignFields: [{ type: mongoose.Schema.Types.ObjectId, ref: "Field"}],
     assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log"}]
 });
