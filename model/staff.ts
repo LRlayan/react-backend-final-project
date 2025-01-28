@@ -33,6 +33,7 @@ export interface IStaff extends Document{
     assignVehicles?: mongoose.Types.ObjectId[];
     assignLogs?: mongoose.Types.ObjectId[];
     assignFields?: mongoose.Types.ObjectId[];
+    assignEquipments?: mongoose.Types.ObjectId[];
 }
 
 const staffSchema = new Schema<IStaff>({
@@ -68,6 +69,7 @@ const staffSchema = new Schema<IStaff>({
     assignVehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" }],
     assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log" }],
     assignFields: [{ type: mongoose.Schema.Types.ObjectId, ref: "Field" }],
+    assignEquipments: [{type: mongoose.Schema.Types.ObjectId, ref: "Equipment"}]
 });
 
 const Staff = mongoose.model<any>("Staff", staffSchema); // Ensure Schema is passed here
