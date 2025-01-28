@@ -8,6 +8,7 @@ export interface IField extends Document {
     image: Buffer;
     assignLogs?: mongoose.Types.ObjectId[];
     assignStaffMembers?: mongoose.Types.ObjectId[];
+    assignCrops?: mongoose.Types.ObjectId[];
 }
 
 const fieldSchema = new Schema<IField>({
@@ -16,12 +17,9 @@ const fieldSchema = new Schema<IField>({
     location: { type: String, required: true },
     extentSize: { type: String, required: true },
     image: { type: Buffer, required: true },
-    assignLogs: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "Log" }
-    ],
-    assignStaffMembers: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "Staff" }
-    ]
+    assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log" }],
+    assignStaffMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff" }],
+    assignCrops: [{ type: mongoose.Schema.Types.ObjectId, ref: "Crop"}]
 });
 
 const Field = mongoose.model<any>("Field", fieldSchema);
