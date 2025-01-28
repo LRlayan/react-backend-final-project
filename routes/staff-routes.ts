@@ -1,5 +1,5 @@
 import express from "express";
-import {saveStaff} from "../database/staff-data-store";
+import {saveStaff} from "../repository/staff-repository";
 
 const staffRoutes = express.Router();
 
