@@ -26,5 +26,5 @@ const vehicleSchema = new Schema<IVehicle>({
     ]
 });
 
-const Vehicle = mongoose.model<IVehicle>('Vehicle', vehicleSchema);
+const Vehicle = mongoose.model<any>('Vehicle', vehicleSchema);
 export default Vehicle;
