@@ -10,7 +10,7 @@ staffRoutes.post('/saveStaff', async (req,res) => {
         const newStaff = new StaffModel(staff.code, staff.firstName, staff.lastName, staff.joinedDate, staff.designation, staff.gender, staff.dob, staff.addressLine01, staff.addressLine02, staff.addressLine03, staff.addressLine04, staff.addressLine05, staff.mobile, staff.email, staff.role, staff.assignVehicles, staff.assignLogs, staff.assignFields, staff.assignEquipments);
         if (newStaff) {
             const result = await saveStaffService(newStaff);
-            res.status(200).send(result);
+            res.status(201).send(result);
         } else {
             console.log("Error, Required staff data!");
         }
