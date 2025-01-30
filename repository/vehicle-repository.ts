@@ -1,8 +1,8 @@
-import VehicleSchema from "../schema/vehicle-schema";
+import Vehicle from "../schema/vehicle";
 import mongoose from "mongoose";
-import StaffSchema from "../schema/staff-schema";
+import Staff from "../schema/staff";
 
-interface VehicleSchema {
+interface Vehicle {
     code: string;
     licensePlateNumber: string;
     vehicleName: string;
@@ -13,23 +13,21 @@ interface VehicleSchema {
     assignStaff?: string[];
 }
 
-export async function saveVehicle(v: VehicleSchema) {
+export async function saveVehicle(vehicleData: Vehicle) {
     try {
         let assignStaffIds: mongoose.Types.ObjectId[] = [];
 
-        if (v.assignStaff && v.assignStaff.length > 0) {
-            const staffDocs = await StaffSchema.find({ code: { $in: v.assignStaff } });
-            assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
-        }
+        const staffDocs = await Staff.find({ code: { $in: vehicleData.assignStaff } });
+        assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
 
-        const newVehicle = new VehicleSchema({
-            vehicleCode: v.code,
-            licensePlateNumber: v.licensePlateNumber,
-            vehicleName: v.vehicleName,
-            category: v.category,
-            fuelType: v.fuelType,
-            status: v.status,
-            remark: v.remark,
+        const newVehicle = new Vehicle({
+            vehicleCode: vehicleData.code,
+            licensePlateNumber: vehicleData.licensePlateNumber,
+            vehicleName: vehicleData.vehicleName,
+            category: vehicleData.category,
+            fuelType: vehicleData.fuelType,
+            status: vehicleData.status,
+            remark: vehicleData.remark,
             assignStaff : assignStaffIds
         });
         await newVehicle.save();
