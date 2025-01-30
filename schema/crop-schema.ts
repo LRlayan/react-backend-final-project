@@ -24,5 +24,5 @@ const cropSchema = new Schema<ICrop>({
     assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log"}]
 });
 
-const Crop = mongoose.model<any>("Crop", cropSchema);
-export default Crop;
+const CropSchema = mongoose.model<any>("CropSchema", cropSchema);
+export default CropSchema;

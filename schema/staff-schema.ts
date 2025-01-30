@@ -72,5 +72,5 @@ const staffSchema = new Schema<IStaff>({
     assignEquipments: [{type: mongoose.Schema.Types.ObjectId, ref: "Equipment"}]
 });
 
-const Staff = mongoose.model<any>("Staff", staffSchema);
-export default Staff;
+const StaffSchema = mongoose.model<any>("StaffSchema", staffSchema);
+export default StaffSchema;

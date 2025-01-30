@@ -22,5 +22,5 @@ const logSchema = new Schema<ILog>({
     assignCrops: [{ type: mongoose.Schema.Types.ObjectId, ref: "Crop"}]
 });
 
-const Log = mongoose.model<any>("Log", logSchema);
-export default Log;
+const LogSchema = mongoose.model<any>("LogSchema", logSchema);
+export default LogSchema;

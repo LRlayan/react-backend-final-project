@@ -24,5 +24,5 @@ const fieldSchema = new Schema<IField>({
     assignEquipments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Equipment"}]
 });
 
-const Field = mongoose.model<any>("Field", fieldSchema);
-export default Field;
+const FieldSchema = mongoose.model<any>("FieldSchema", fieldSchema);
+export default FieldSchema;
