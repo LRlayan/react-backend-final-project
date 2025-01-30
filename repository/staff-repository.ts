@@ -5,7 +5,7 @@ import EquipmentSchema from "../schema/equipment-schema";
 import FieldSchema from "../schema/field-schema";
 import LogSchema from "../schema/log-schema";
 
-interface Staff {
+interface StaffSchema {
     code: string;
     firstName: string;
     lastName: string;
