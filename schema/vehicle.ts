@@ -13,7 +13,7 @@ export interface IVehicle extends Document {
     assignStaff?: mongoose.Types.ObjectId;
 }
 
-const vehicleSchema = new Schema<IVehicle>({
+const vehicle = new Schema<IVehicle>({
     vehicleCode: { type: String, required: true, unique: true},
     licensePlateNumber: { type: String, required: true, unique: true},
     vehicleName: { type: String, required: true},
@@ -26,5 +26,5 @@ const vehicleSchema = new Schema<IVehicle>({
     ]
 });
 
-const VehicleSchema = mongoose.model<any>('VehicleSchema', vehicleSchema);
-export default VehicleSchema;
+const Vehicle = mongoose.model<any>('Vehicle', vehicle);
+export default Vehicle;

@@ -11,7 +11,7 @@ export interface ILog extends Document {
     assignCrops?: mongoose.Types.ObjectId[];
 }
 
-const logSchema = new Schema<ILog>({
+const log = new Schema<ILog>({
     code: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     logDate: { type: String, required: true },
@@ -22,5 +22,5 @@ const logSchema = new Schema<ILog>({
     assignCrops: [{ type: mongoose.Schema.Types.ObjectId, ref: "Crop"}]
 });
 
-const LogSchema = mongoose.model<any>("LogSchema", logSchema);
-export default LogSchema;
+const Log = mongoose.model<any>("Log", log);
+export default Log;

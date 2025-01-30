@@ -9,11 +9,11 @@ export interface IEquipment {
     equType:EquipmentType;
     status:StatusType;
     count:number;
-    assignStaffMembers: mongoose.Types.ObjectId[];
-    assignFields: mongoose.Types.ObjectId[];
+    assignStaffMembers?: mongoose.Types.ObjectId[];
+    assignFields?: mongoose.Types.ObjectId[];
 }
 
-const equipmentSchema = new Schema<IEquipment>({
+const equipment = new Schema<IEquipment>({
     code: { type: String, required: true, unique: true},
     name: { type: String, required: true},
     equType: { type: String, required: true, enum: ["Hand Tools","Irrigation EquipmentModel","Power Tools and Machinery","Ploughing EquipmentModel","Weeding and Pest Control EquipmentModel","Harvesting EquipmentModel","Post-Harvest EquipmentModel","Monitoring and Measuring Tools","Protective EquipmentModel"]},
@@ -23,5 +23,5 @@ const equipmentSchema = new Schema<IEquipment>({
     assignFields: [{ type: mongoose.Schema.Types.ObjectId, ref: "Field"}]
 });
 
-const EquipmentSchema = mongoose.model<any>("EquipmentSchema", equipmentSchema);
-export default EquipmentSchema;
+const Equipment = mongoose.model<any>("Equipment", equipment);
+export default Equipment;

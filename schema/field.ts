@@ -12,7 +12,7 @@ export interface IField extends Document {
     assignEquipments?: mongoose.Types.ObjectId[];
 }
 
-const fieldSchema = new Schema<IField>({
+const field = new Schema<IField>({
     code: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     location: { type: String, required: true },
@@ -24,5 +24,5 @@ const fieldSchema = new Schema<IField>({
     assignEquipments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Equipment"}]
 });
 
-const FieldSchema = mongoose.model<any>("FieldSchema", fieldSchema);
-export default FieldSchema;
+const Field = mongoose.model<any>("Field", field);
+export default Field;

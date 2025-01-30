@@ -13,7 +13,7 @@ export interface ICrop {
     assignLogs:mongoose.Types.ObjectId[];
 }
 
-const cropSchema = new Schema<ICrop>({
+const crop = new Schema<ICrop>({
     code: { type: String, required: true, unique: true},
     name: { type: String, required: true},
     scientificName: { type: String, required: true},
@@ -24,5 +24,5 @@ const cropSchema = new Schema<ICrop>({
     assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log"}]
 });
 
-const CropSchema = mongoose.model<any>("CropSchema", cropSchema);
-export default CropSchema;
+const Crop = mongoose.model<any>("Crop", crop);
+export default Crop;

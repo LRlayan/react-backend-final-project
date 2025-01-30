@@ -36,7 +36,7 @@ export interface IStaff extends Document{
     assignEquipments?: mongoose.Types.ObjectId[];
 }
 
-const staffSchema = new Schema<IStaff>({
+const staff = new Schema<IStaff>({
     code: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -72,5 +72,5 @@ const staffSchema = new Schema<IStaff>({
     assignEquipments: [{type: mongoose.Schema.Types.ObjectId, ref: "Equipment"}]
 });
 
-const StaffSchema = mongoose.model<any>("StaffSchema", staffSchema);
-export default StaffSchema;
+const Staff = mongoose.model<any>("Staff", staff);
+export default Staff;
