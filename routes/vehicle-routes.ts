@@ -7,7 +7,7 @@ vehicleRoutes.post('/saveVehicle', async (req, res) => {
     const vehicle = req.body;
     try {
         await saveVehicle(vehicle);
-        res.status(200).send("Vehicle saved successfully.");
+        res.status(200).send("VehicleModel saved successfully.");
     } catch (e) {
         console.error("Failed to save vehicle!", e);
         res.status(400).send("Failed to save vehicle. Please try again.");
