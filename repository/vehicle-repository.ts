@@ -2,7 +2,7 @@ import VehicleSchema from "../schema/vehicle-schema";
 import mongoose from "mongoose";
 import StaffSchema from "../schema/staff-schema";
 
-interface Vehicle {
+interface VehicleSchema {
     code: string;
     licensePlateNumber: string;
     vehicleName: string;
