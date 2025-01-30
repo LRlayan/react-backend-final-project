@@ -2,6 +2,7 @@ import express from 'express';
 import vehicleRoutes from "./routes/vehicle-routes";
 import mongoose from "mongoose";
 import staffRoutes from "./routes/staff-routes";
+import equipmentRoutes from "./routes/equipment-routes";
 
 const cors = require('cors');
 const app = express();
@@ -26,7 +27,7 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
 // app.use('/field');
 // app.use('/log');
 app.use('/staff',staffRoutes);
-// app.use('/equipment');
+app.use('/equipment', equipmentRoutes);
 app.use('/vehicle',vehicleRoutes);
 
 app.listen(3000, () => console.log("Server start 3000 port"));
