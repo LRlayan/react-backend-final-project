@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import Vehicle from "../model/vehicle";
-import Staff from "../model/staff"
-import Equipment from "../model/equipment";
-import Field from "../model/field";
-import Log from "../model/log";
+import VehicleSchema from "../schema/vehicle-schema";
+import StaffSchema from "../schema/staff-schema"
+import EquipmentSchema from "../schema/equipment-schema";
+import FieldSchema from "../schema/field-schema";
+import LogSchema from "../schema/log-schema";
 
 interface Staff {
     code: string;
@@ -27,48 +27,48 @@ interface Staff {
     assignEquipments?: string[];
 }
 
-export async function saveStaff(s: Staff) {
+export async function saveStaff(staffData: StaffSchema) {
     try {
         let assignVehicleIds: mongoose.Types.ObjectId[] = [];
         let assignFieldIds: mongoose.Types.ObjectId[] = [];
         let assignLogIds: mongoose.Types.ObjectId[] = [];
         let assignEquipmentIds: mongoose.Types.ObjectId[] = [];
 
-        const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: s.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const vehicleDocs = await VehicleSchema.find({ vehicleCode: { $in: staffData.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignVehicleIds = vehicleDocs.map((vehicle) => vehicle._id);
 
-        const logDocs = await Log.find({ code: { $in: s.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const logDocs = await LogSchema.find({ code: { $in: staffData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignLogIds = logDocs.map((log) => log._id);
 
-        const fieldDocs = await Field.find({ code: { $in: s.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const fieldDocs = await FieldSchema.find({ code: { $in: staffData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignFieldIds = fieldDocs.map((field) => field._id);
 
-        const equipmentDocs = await Equipment.find({ code: { $in: s.assignEquipments } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const equipmentDocs = await EquipmentSchema.find({ code: { $in: staffData.assignEquipments } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignEquipmentIds = equipmentDocs.map((equipment) => equipment._id);
 
-        const newStaff = new Staff({
-            code: s.code,
-            firstName: s.firstName,
-            lastName: s.lastName,
-            joinedDate: s.joinedDate,
-            designation: s.designation,
-            gender: s.gender,
-            dob: s.dob,
-            addressLine01: s.addressLine01,
-            addressLine02: s.addressLine02,
-            addressLine03: s.addressLine03,
-            addressLine04: s.addressLine04,
-            addressLine05: s.addressLine05,
-            mobile: s.mobile,
-            email: s.email,
-            role: s.role,
+        const newStaff = new StaffSchema({
+            code: staffData.code,
+            firstName: staffData.firstName,
+            lastName: staffData.lastName,
+            joinedDate: staffData.joinedDate,
+            designation: staffData.designation,
+            gender: staffData.gender,
+            dob: staffData.dob,
+            addressLine01: staffData.addressLine01,
+            addressLine02: staffData.addressLine02,
+            addressLine03: staffData.addressLine03,
+            addressLine04: staffData.addressLine04,
+            addressLine05: staffData.addressLine05,
+            mobile: staffData.mobile,
+            email: staffData.email,
+            role: staffData.role,
             assignVehicles: assignVehicleIds,
             assignLogs: assignLogIds,
             assignFields: assignFieldIds,
             assignEquipments: assignEquipmentIds
         });
         await newStaff.save();
-        console.log("Staff Member saved successfully:", newStaff);
+        console.log("StaffModel Member saved successfully:", newStaff);
     } catch (e) {
         console.error("Failed to save staff:", e);
         throw e;
