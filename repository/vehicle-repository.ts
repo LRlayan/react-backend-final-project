@@ -1,6 +1,6 @@
-import Vehicle from "../model/vehicle";
+import VehicleSchema from "../schema/vehicle-schema";
 import mongoose from "mongoose";
-import Staff from "../model/staff";
+import StaffSchema from "../schema/staff-schema";
 
 interface Vehicle {
     code: string;
@@ -13,16 +13,16 @@ interface Vehicle {
     assignStaff?: string[];
 }
 
-export async function saveVehicle(v: Vehicle) {
+export async function saveVehicle(v: VehicleSchema) {
     try {
         let assignStaffIds: mongoose.Types.ObjectId[] = [];
 
         if (v.assignStaff && v.assignStaff.length > 0) {
-            const staffDocs = await Staff.find({ code: { $in: v.assignStaff } });
+            const staffDocs = await StaffSchema.find({ code: { $in: v.assignStaff } });
             assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
         }
 
-        const newVehicle = new Vehicle({
+        const newVehicle = new VehicleSchema({
             vehicleCode: v.code,
             licensePlateNumber: v.licensePlateNumber,
             vehicleName: v.vehicleName,
@@ -33,7 +33,7 @@ export async function saveVehicle(v: Vehicle) {
             assignStaff : assignStaffIds
         });
         await newVehicle.save();
-        console.log("Vehicle saved successfully:", newVehicle);
+        console.log("VehicleModel saved successfully:", newVehicle);
     } catch (e) {
         console.error("Failed to save vehicle:", e);
         throw e;
