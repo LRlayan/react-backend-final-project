@@ -20,7 +20,7 @@ cropRoutes.post('/saveCrop', upload.single('image'), async (req,res) => {
     try {
         const { code, name, scientificName, category, season, assignFields, assignLogs } = req.body;
         const image = req.file ? req.file.filename : null;
-        const newCrop = new CropModel(code,name,scientificName, category, season, image, assignFields, assignLogs);
+        const newCrop = new CropModel(code, name, scientificName, category, season, image, assignFields, assignLogs);
         if (newCrop) {
             const result = await saveCropService(newCrop);
             res.status(201).send(result);
