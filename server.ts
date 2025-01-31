@@ -5,6 +5,7 @@ import staffRoutes from "./routes/staff-routes";
 import equipmentRoutes from "./routes/equipment-routes";
 import cropRoutes from "./routes/crop-routes";
 import fieldRoutes from "./routes/field-routes";
+import logRoutes from "./routes/log-routes";
 
 const cors = require('cors');
 const app = express();
@@ -28,9 +29,9 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
 
 app.use('/crop',cropRoutes);
 app.use('/field',fieldRoutes);
-// app.use('/log');
+app.use('/log',logRoutes);
 app.use('/staff',staffRoutes);
-app.use('/equipment', equipmentRoutes);
+app.use('/equipment',equipmentRoutes);
 app.use('/vehicle',vehicleRoutes);
 
 app.listen(3000, () => console.log("Server start 3000 port"));
