@@ -1,13 +1,20 @@
 import express from "express";
-import {saveVehicle} from "../repository/vehicle-repository";
+import {saveVehicleService} from "../service/vehicle-service";
+import {VehicleModel} from "../models/vehicle-model";
+import {saveEquipmentService} from "../service/equipment-service";
 
 const vehicleRoutes = express.Router();
 
 vehicleRoutes.post('/saveVehicle', async (req, res) => {
     const vehicle = req.body;
     try {
-        await saveVehicle(vehicle);
-        res.status(200).send("VehicleModel saved successfully.");
+        const newVehicle = new VehicleModel(vehicle.vehicleCode, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
+        if (newVehicle) {
+            const result = await saveVehicleService(newVehicle);
+            res.status(201).send(result);
+        } else {
+            console.log("Error, Required vehicle data!");
+        }
     } catch (e) {
         console.error("Failed to save vehicle!", e);
         res.status(400).send("Failed to save vehicle. Please try again.");
