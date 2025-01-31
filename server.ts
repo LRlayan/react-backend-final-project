@@ -3,6 +3,7 @@ import vehicleRoutes from "./routes/vehicle-routes";
 import mongoose from "mongoose";
 import staffRoutes from "./routes/staff-routes";
 import equipmentRoutes from "./routes/equipment-routes";
+import cropRoutes from "./routes/crop-routes";
 
 const cors = require('cors');
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors({
     method: ['GET','POST','PUT','PATCH','DELETE'],
     allowedHeaders: ['Content-Type','Authorization']
 }));
+app.use('/uploads', express.static('uploads'));
 
 mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
     .then(() => {
@@ -23,7 +25,7 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
     });
 
 
-// app.use('/crop');
+app.use('/crop',cropRoutes);
 // app.use('/field');
 // app.use('/log');
 app.use('/staff',staffRoutes);
