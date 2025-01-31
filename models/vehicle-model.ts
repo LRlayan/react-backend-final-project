@@ -1,6 +1,3 @@
-import mongoose from "mongoose";
-import {StaffModel} from "./staff-model";
-
 export class VehicleModel {
     vehicleCode: string;
     licensePlateNumber: string;
@@ -9,9 +6,9 @@ export class VehicleModel {
     fuelType: string;
     status: string;
     remark: string;
-    assignStaff?: StaffModel;
+    assignStaff?: string[];
 
-    constructor(vehicleCode: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaff: StaffModel) {
+    constructor(vehicleCode: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaff: string[]) {
         this.vehicleCode = vehicleCode;
         this.licensePlateNumber = licensePlateNumber;
         this.vehicleName = vehicleName;
