@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Staff from "../schema/staff";
 
 interface Vehicle {
-    code: string;
+    vehicleCode: string;
     licensePlateNumber: string;
     vehicleName: string;
     category: string;
@@ -21,7 +21,7 @@ export async function saveVehicle(vehicleData: Vehicle) {
         assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
 
         const newVehicle = new Vehicle({
-            vehicleCode: vehicleData.code,
+            vehicleCode: vehicleData.vehicleCode,
             licensePlateNumber: vehicleData.licensePlateNumber,
             vehicleName: vehicleData.vehicleName,
             category: vehicleData.category,
@@ -30,8 +30,13 @@ export async function saveVehicle(vehicleData: Vehicle) {
             remark: vehicleData.remark,
             assignStaff : assignStaffIds
         });
-        await newVehicle.save();
-        console.log("VehicleModel saved successfully:", newVehicle);
+        const result = await newVehicle.save();
+        if (result) {
+            return { message: "Vehicle saved successfully" };
+        } else {
+            return { message: "Vehicle saved unsuccessfully!"}
+            throw new Error("Failed to save equipment. Please try again.");
+        }
     } catch (e) {
         console.error("Failed to save vehicle:", e);
         throw e;
