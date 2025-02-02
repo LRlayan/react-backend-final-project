@@ -1,4 +1,4 @@
-import Vehicle from "../schema/vehicle";
+import Vehicle, {IVehicle} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 
@@ -12,6 +12,11 @@ interface Vehicle {
     remark?: string;
     assignStaff?: string[];
 }
+
+export async function findVehicleByCode(vehicleCode: string): Promise<IVehicle | null> {
+    return await Vehicle.findOne({ vehicleCode }).populate("assignStaff").exec();
+}
+
 
 export async function saveVehicle(vehicleData: Vehicle) {
     try {
@@ -39,6 +44,20 @@ export async function saveVehicle(vehicleData: Vehicle) {
         }
     } catch (e) {
         console.error("Failed to save vehicle:", e);
+        throw e;
+    }
+}
+
+export async function updateVehicle(vehicleData: any) {
+    try {
+        const result = await vehicleData.save();
+        if (result) {
+            return { message: "Updated to vehicle"};
+        } else {
+            return { message: "Failed to update vehicle"};
+        }
+    } catch (e) {
+        console.error("Failed to update vehicle:", e);
         throw e;
     }
 }
