@@ -79,3 +79,29 @@ export async function saveStaff(staffData: Staff) {
         throw e;
     }
 }
+
+export async function updateStaffAssignVehicle(vehicleCode: string, assignStaff: string[]) {
+    try {
+        const staffCodes = assignStaff ?? []; // Define staffCodes properly
+
+        const staffDocs = await Staff.find({ code: { $in: staffCodes } });
+        const staffIds = staffDocs.map(staff => staff._id as mongoose.Types.ObjectId);
+
+        // Remove vehicleCode from previous staff members' assignVehicles
+        await Staff.updateMany(
+            { assignVehicles: vehicleCode },
+            { $pull: { assignVehicles: vehicleCode } }
+        );
+
+        // Add vehicleCode to new staff members' assignVehicles
+        await Staff.updateMany(
+            { _id: { $in: staffIds } },
+            { $addToSet: { assignVehicles: vehicleCode } }
+        );
+
+        return staffIds; // Return updated staff IDs for vehicle update
+    } catch (error) {
+        console.error("Error updating staff assignVehicles:", error);
+        throw error;
+    }
+}
