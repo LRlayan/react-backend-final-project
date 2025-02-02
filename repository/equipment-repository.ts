@@ -15,25 +15,7 @@ interface Equipment {
 
 export async function saveEquipment(equData: Equipment) {
     try {
-        let assignStaffMembers : mongoose.Types.ObjectId[] = [];
-        let assignFields : mongoose.Types.ObjectId[] = [];
-
-        const staffDocs = await Staff.find({ code: { $in: equData.assignStaffMembers }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        assignStaffMembers = staffDocs.map((staff) => staff._id);
-
-        const fieldDocs = await Field.find({ code: { $in: equData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        assignFields = fieldDocs.map((field) => field._id);
-
-        const newEquipment = new Equipment({
-            code: equData.code,
-            name: equData.name,
-            equType: equData.equType,
-            status: equData.status,
-            count: equData.count,
-            assignStaffMembers: assignStaffMembers,
-            assignFields: assignFields
-        });
-
+        const newEquipment = new Equipment(equData);
         const result = await newEquipment.save();
         if (result) {
             return { message: "Equipment Saved Successfully!"};

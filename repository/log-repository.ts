@@ -17,39 +17,17 @@ interface Log {
 
 export async function saveLog(logData: Log) {
     try {
-        let assignFieldIda : mongoose.Types.ObjectId[] = [];
-        let assignStaffIds : mongoose.Types.ObjectId[] = [];
-        let assignCropIds : mongoose.Types.ObjectId[] = [];
-
-        const fieldDoc = await Field.find({ code: { $in: logData.assignFields}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        fieldDoc.map((field) => field._id);
-
-        const staffDocs = await Staff.find({ code: { $in: logData.assignStaff}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        staffDocs.map((staff) => staff._id);
-
-        const cropDocs = await Crop.find( { code: { $in: logData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        cropDocs.map((crop) => crop._id);
-
-        const newLog = new Log({
-            code: logData.code,
-            name: logData.name,
-            logDate: logData.logDate,
-            logDetails: logData.logDetails,
-            image: logData.image,
-            assignFields: assignFieldIda,
-            assignStaff: assignStaffIds,
-            assignCrops: assignCropIds
-        });
-
+        const newLog = new Log(logData);
         const result = await newLog.save();
-        if (result) {
-            return { message: "Log Saved Successfully!"};
-        } else {
-            return { message: "Failed to save log. Please try again."}
-            throw new Error("Failed to save log. Please try again.");
-        }
+        return result
+            ? { message: "Log saved successfully" }
+            : { message: "Log saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save log:", e);
         throw e;
     }
+}
+
+export async function updateLog(logData: Log) {
+
 }
