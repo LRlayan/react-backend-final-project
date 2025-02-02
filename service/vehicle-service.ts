@@ -1,13 +1,29 @@
 import {VehicleModel} from "../models/vehicle-model";
 import {findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
-import {StatusType} from "../schema/vehicle";
+import Vehicle, {StatusType} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import {updateStaffAssignVehicle} from "../repository/staff-repository";
 
 export async function saveVehicleService(vehicleData: VehicleModel) {
     try {
-        const result = await saveVehicle(vehicleData);
+        let assignStaffIds: mongoose.Types.ObjectId[] = [];
+
+        const staffDocs = await Staff.find({ code: { $in: vehicleData.assignStaff } });
+        assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
+
+        const newVehicle = new Vehicle({
+            vehicleCode: vehicleData.vehicleCode,
+            licensePlateNumber: vehicleData.licensePlateNumber,
+            vehicleName: vehicleData.vehicleName,
+            category: vehicleData.category,
+            fuelType: vehicleData.fuelType,
+            status: vehicleData.status,
+            remark: vehicleData.remark,
+            assignStaff : assignStaffIds
+        });
+
+        const result = await saveVehicle(newVehicle);
         return { message: result}
     } catch (e) {
         console.error("Service layer error: Failed to save vehicle!");
