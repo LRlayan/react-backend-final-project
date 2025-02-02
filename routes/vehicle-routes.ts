@@ -1,5 +1,5 @@
 import express from "express";
-import {saveVehicleService} from "../service/vehicle-service";
+import {saveVehicleService, updateVehicleService} from "../service/vehicle-service";
 import {VehicleModel} from "../models/vehicle-model";
 import {saveEquipmentService} from "../service/equipment-service";
 
@@ -21,8 +21,21 @@ vehicleRoutes.post('/saveVehicle', async (req, res) => {
     }
 });
 
-vehicleRoutes.put('/updateVehicle/:vehicleId', async (req,res) => {
-
+vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
+    const code = req.params.vehicleCode;
+    const vehicle = req.body;
+    try {
+        const updateVehicle = new VehicleModel(code, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
+        if (updateVehicle) {
+            const result = await updateVehicleService(updateVehicle);
+            res.status(204).send(result);
+        } else {
+            console.log("Error, Required vehicle data!");
+        }
+    } catch (e) {
+        console.error("Failed to update vehicle!", e);
+        res.status(400).send("Failed to update vehicle. Please try again.");
+    }
 });
 
 vehicleRoutes.delete('/deleteVehicle/:vehicleId', async (req,res) => {
