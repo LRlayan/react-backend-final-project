@@ -3,6 +3,7 @@ import {findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehic
 import {StatusType} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
+import {updateStaffAssignVehicle} from "../repository/staff-repository";
 
 export async function saveVehicleService(vehicleData: VehicleModel) {
     try {
@@ -21,7 +22,6 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
             throw new Error("Vehicle not found!");
         }
 
-        // Convert staff codes to ObjectIds
         let updatedStaffIds: mongoose.Types.ObjectId[] = [];
         if (vehicleData.assignStaff && Array.isArray(vehicleData.assignStaff)) {
             const staffDocs = await Staff.find({ code: { $in: vehicleData.assignStaff } });
@@ -35,6 +35,8 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
         existingVehicle.status = vehicleData.status as StatusType;
         existingVehicle.remark = vehicleData.remark;
         existingVehicle.assignStaff = updatedStaffIds;
+
+        const updatedVehiclesOfStaff = await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
 
         const updatedVehicle = await updateVehicle(existingVehicle);
         return updatedVehicle;
