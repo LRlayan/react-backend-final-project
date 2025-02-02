@@ -4,6 +4,7 @@ import Staff from "../schema/staff"
 import Equipment from "../schema/equipment";
 import Field from "../schema/field";
 import Log from "../schema/log";
+import {VehicleModel} from "../models/vehicle-model";
 
 interface Staff {
     code: string;
@@ -80,28 +81,31 @@ export async function saveStaff(staffData: Staff) {
     }
 }
 
-export async function updateStaffAssignVehicle(vehicleCode: string, assignStaff: string[]) {
+export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData: VehicleModel) {
     try {
-        const staffCodes = assignStaff ?? []; // Define staffCodes properly
+        const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!vehicleDoc) {
+            throw new Error(`Vehicle with code ${vehicleCode} not found`);
+        }
+        const vehicleId = vehicleDoc._id;
 
-        const staffDocs = await Staff.find({ code: { $in: staffCodes } });
-        const staffIds = staffDocs.map(staff => staff._id as mongoose.Types.ObjectId);
+        let staffCodes: mongoose.Types.ObjectId[] = [];
+        const staffDocs = await Staff.find({ code: { $in: vehicleData.assignStaff}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        staffCodes = staffDocs.map((staff) => staff._id);
 
-        // Remove vehicleCode from previous staff members' assignVehicles
         await Staff.updateMany(
-            { assignVehicles: vehicleCode },
-            { $pull: { assignVehicles: vehicleCode } }
+            { assignVehicles: vehicleId },
+            { $pull: { assignVehicles: vehicleId } }
         );
 
-        // Add vehicleCode to new staff members' assignVehicles
         await Staff.updateMany(
-            { _id: { $in: staffIds } },
-            { $addToSet: { assignVehicles: vehicleCode } }
+            { _id: { $in: staffCodes } },
+            { $addToSet: { assignVehicles: vehicleId } }
         );
-
-        return staffIds; // Return updated staff IDs for vehicle update
+        return staffCodes;
     } catch (error) {
         console.error("Error updating staff assignVehicles:", error);
         throw error;
     }
 }
+
