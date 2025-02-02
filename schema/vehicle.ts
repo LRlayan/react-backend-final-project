@@ -10,7 +10,7 @@ export interface IVehicle extends Document {
     fuelType: string;
     status: StatusType;
     remark: string;
-    assignStaff?: mongoose.Types.ObjectId;
+    assignStaff?: mongoose.Types.ObjectId[];
 }
 
 const vehicle = new Schema<IVehicle>({
