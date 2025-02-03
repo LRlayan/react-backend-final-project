@@ -1,6 +1,4 @@
 import Vehicle, {IVehicle} from "../schema/vehicle";
-import mongoose from "mongoose";
-import Staff from "../schema/staff";
 
 interface Vehicle {
     vehicleCode: string;
@@ -32,12 +30,10 @@ export async function saveVehicle(vehicleData: Vehicle) {
 
 export async function updateVehicle(vehicleData: any) {
     try {
-        const result = await vehicleData.save();
-        if (result) {
-            return { message: "Updated to vehicle Successfully"};
-        } else {
-            return { message: "Failed to update vehicle"};
-        }
+        const result = await vehicleData.updateOne();
+        return result
+            ? { message: "Vehicle update successfully" }
+            : { message: "Vehicle update unsuccessfully!" };
     } catch (e) {
         console.error("Failed to update vehicle:", e);
         throw e;
