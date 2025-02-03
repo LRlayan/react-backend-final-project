@@ -28,9 +28,13 @@ export async function saveVehicle(vehicleData: Vehicle) {
     }
 }
 
-export async function updateVehicle(vehicleData: any) {
+export async function updateVehicle(vehicleCode: string, updateData: Partial<IVehicle>) {
     try {
-        const result = await vehicleData.updateOne();
+        const result = await Vehicle.findOneAndUpdate(
+            { vehicleCode },
+            { $set: updateData },
+            { new: true }
+        );
         return result
             ? { message: "Vehicle update successfully" }
             : { message: "Vehicle update unsuccessfully!" };
