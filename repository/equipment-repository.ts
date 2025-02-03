@@ -40,5 +40,5 @@ export async function updateEquipment(equCode: string, updateData: Partial<IEqui
 }
 
 export async function findEquipmentByCode(equCode: string): Promise<IEquipment | null> {
-    return await Equipment.findOne({ equCode }).populate("assignField").exec();
+    return await Equipment.findOne({ equCode }).populate("assignField").populate("assignStaffMembers").exec();
 }
