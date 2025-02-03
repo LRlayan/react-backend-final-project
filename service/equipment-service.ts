@@ -58,9 +58,8 @@ export async function updateEquipmentService(equData: EquipmentModel) {
         const updateData : Partial<IEquipment> = {
             name: equData.name,
             equType: equData.equType as EquipmentType,
-            status: equData.status,
-            count: equData.count,
             status: equData.status as StatusType,
+            count: equData.count,
             assignStaffMembers: updatedStaffIds,
             assignFields: updatedFieldIds
         };
