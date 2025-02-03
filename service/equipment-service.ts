@@ -4,7 +4,8 @@ import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
 import Equipment, {EquipmentType, IEquipment, StatusType} from "../schema/equipment";
-import {updateEquipmentAssignFields, updateEquipmentAssignStaff} from "../repository/staff-repository";
+import {updateStaffAssignEquipments} from "../repository/staff-repository";
+import {updateFieldAssignEquipment} from "../repository/field-repository";
 
 export async function saveEquipmentService(equData: EquipmentModel) {
     try {
@@ -64,8 +65,8 @@ export async function updateEquipmentService(equData: EquipmentModel) {
             assignFields: updatedFieldIds
         };
 
-        const updatedStaffOfEquipment = await updateEquipmentAssignStaff(equData.code, equData);
-        const updatedFieldOfEquipment = await updateEquipmentAssignFields(equData.code, equData);
+        const updatedStaffOfEquipment = await updateStaffAssignEquipments(equData.code, equData);
+        const updatedFieldOfEquipment = await updateFieldAssignEquipment(equData.code, equData);
         return await updateEquipment(equData.code, updateData);
     } catch (e) {
         console.error("Service layer error: Failed to update equipment!", e);
