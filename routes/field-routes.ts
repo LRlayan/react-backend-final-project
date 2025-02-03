@@ -1,20 +1,12 @@
 import express from "express";
-import multer from 'multer';
-import path from 'path';
 import {saveFieldService} from "../service/field-service";
 import {FieldModel} from "../models/field-model";
+import {ImageUploader} from "../util/image-uploader";
 
 const fieldRoutes = express.Router();
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
+const imageUploader = new ImageUploader();
 
-const upload = multer({storage: storage});
+const upload = imageUploader.uploader('field');
 
 fieldRoutes.post('/saveField', upload.single('image'), async (req,res) => {
     try {

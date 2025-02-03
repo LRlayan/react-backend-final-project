@@ -1,21 +1,11 @@
 import express from "express";
-import multer from "multer";
-import path from "path";
 import {LogModel} from "../models/log-model";
 import {saveLogService} from "../service/log-service";
+import {ImageUploader} from "../util/image-uploader";
 
 const logRoutes = express.Router();
-
-const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, 'uploads/');
-    },
-    filename: (req, file, callback) => {
-        callback(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({storage: storage});
+const imageUploader = new ImageUploader();
+const upload = imageUploader.uploader('log');
 
 logRoutes.post('/saveLog', upload.single('image'), async (req,res) =>{
     try {
