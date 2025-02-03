@@ -3,7 +3,7 @@ import {findEquipmentByCode, saveEquipment, updateEquipment} from "../repository
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
-import Equipment, {EquipmentType, StatusType} from "../schema/equipment";
+import Equipment, {EquipmentType, IEquipment, StatusType} from "../schema/equipment";
 import {updateEquipmentAssignFields, updateEquipmentAssignStaff} from "../repository/staff-repository";
 
 export async function saveEquipmentService(equData: EquipmentModel) {
@@ -54,17 +54,19 @@ export async function updateEquipmentService(equData: EquipmentModel) {
             updatedStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
         }
 
-        excitingEquipment.code = equData.code;
-        excitingEquipment.name = equData.name;
-        excitingEquipment.equType = equData.equType as EquipmentType;
-        excitingEquipment.status = equData.status as StatusType;
-        excitingEquipment.count = equData.count;
-        excitingEquipment.assignStaffMembers = updatedStaffIds;
-        excitingEquipment.assignFields = updatedFieldIds;
+        const updateData : Partial<IEquipment> = {
+            name: equData.name,
+            equType: equData.equType as EquipmentType,
+            status: equData.status,
+            count: equData.count,
+            status: equData.status as StatusType,
+            assignStaffMembers: updatedStaffIds,
+            assignFields: updatedFieldIds
+        };
 
         const updatedStaffOfEquipment = await updateEquipmentAssignStaff(equData.code, equData);
         const updatedFieldOfEquipment = await updateEquipmentAssignFields(equData.code, equData);
-        return await updateEquipment(excitingEquipment);
+        return await updateEquipment(equData.code, updateData);
     } catch (e) {
         console.error("Service layer error: Failed to update equipment!", e);
         throw new Error("Failed to update equipment, Please try again.");
