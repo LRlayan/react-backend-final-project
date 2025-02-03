@@ -68,16 +68,16 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
     }
 }
 
-export async function updateStaffAssignEquipments(equCode: string, equData: EquipmentModel) {
+export async function updateStaffAssignEquipments(code: string, equData: EquipmentModel) {
     try {
-        const equipmentDocs = await Equipment.findOne( { equCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        const equipmentDocs = await Equipment.findOne( { code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!equipmentDocs) {
-            throw new Error(`Equipment with code ${equCode} not found`);
+            throw new Error(`Equipment with code ${code} not found`);
         }
         const equId = equipmentDocs._id;
 
         let staffCodes : mongoose.Types.ObjectId[] = [];
-        const staffDocs = await Staff.find({code: { $in : equData.code}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
+        const staffDocs = await Staff.find({code: { $in : equData.assignStaffMembers}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
         staffCodes = staffDocs.map((staff) => staff._id);
 
         await Staff.updateMany(
@@ -91,7 +91,7 @@ export async function updateStaffAssignEquipments(equCode: string, equData: Equi
         );
         return staffCodes;
     } catch (e) {
-        console.error("Error updating staff assignEquipments:", error);
-        throw error;
+        console.error("Error updating staff assignEquipments:", e);
+        throw e;
     }
 }

@@ -23,10 +23,10 @@ export async function saveEquipment(equData: Equipment) {
     }
 }
 
-export async function updateEquipment(equCode: string, updateData: Partial<IEquipment>) {
+export async function updateEquipment(code: string, updateData: Partial<IEquipment>) {
     try {
         const result = await Equipment.findOneAndUpdate(
-            { equCode },
+            { code },
             { $set: updateData },
             { new: true }
         );
@@ -39,6 +39,6 @@ export async function updateEquipment(equCode: string, updateData: Partial<IEqui
     }
 }
 
-export async function findEquipmentByCode(equCode: string): Promise<IEquipment | null> {
-    return await Equipment.findOne({ equCode }).populate("assignField").populate("assignStaffMembers").exec();
+export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
+    return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
 }
