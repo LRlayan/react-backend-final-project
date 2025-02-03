@@ -53,9 +53,7 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
         existingVehicle.assignStaff = updatedStaffIds;
 
         const updatedVehiclesOfStaff = await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
-
-        const updatedVehicle = await updateVehicle(existingVehicle);
-        return updatedVehicle;
+        return await updateVehicle(existingVehicle);
     } catch (e) {
         console.error("Service layer error: Failed to update vehicle!", e);
         throw new Error("Failed to update vehicle, Please try again.");
