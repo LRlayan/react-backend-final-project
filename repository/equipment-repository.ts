@@ -23,9 +23,13 @@ export async function saveEquipment(equData: Equipment) {
     }
 }
 
-export async function updateEquipment(equData: any) {
+export async function updateEquipment(equCode: string, updateData: Partial<IEquipment>) {
     try {
-        const result = await equData.save();
+        const result = await Equipment.findOneAndUpdate(
+            { equCode },
+            { $set: updateData },
+            { new: true }
+        );
         return result
             ? { message: "Equipment update successfully" }
             : { message: "Equipment update unsuccessfully!" };
