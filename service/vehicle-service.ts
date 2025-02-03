@@ -1,6 +1,6 @@
 import {VehicleModel} from "../models/vehicle-model";
 import {findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
-import Vehicle, {StatusType} from "../schema/vehicle";
+import Vehicle, {IVehicle, StatusType} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import {updateStaffAssignVehicle} from "../repository/staff-repository";
@@ -44,16 +44,18 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
             updatedStaffIds = staffDocs.map(staff => staff._id as mongoose.Types.ObjectId);
         }
 
-        existingVehicle.licensePlateNumber = vehicleData.licensePlateNumber;
-        existingVehicle.vehicleName = vehicleData.vehicleName;
-        existingVehicle.category = vehicleData.category;
-        existingVehicle.fuelType = vehicleData.fuelType;
-        existingVehicle.status = vehicleData.status as StatusType;
-        existingVehicle.remark = vehicleData.remark;
-        existingVehicle.assignStaff = updatedStaffIds;
+        const updateData : Partial<IVehicle> = {
+            licensePlateNumber: vehicleData.licensePlateNumber,
+            vehicleName: vehicleData.vehicleName,
+            category: vehicleData.category,
+            fuelType: vehicleData.fuelType,
+            status: vehicleData.status as StatusType,
+            remark: vehicleData.remark,
+            assignStaff: updatedStaffIds
+        };
 
         const updatedVehiclesOfStaff = await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
-        return await updateVehicle(existingVehicle);
+        return await updateVehicle(vehicleData.vehicleCode, updateData);
     } catch (e) {
         console.error("Service layer error: Failed to update vehicle!", e);
         throw new Error("Failed to update vehicle, Please try again.");
