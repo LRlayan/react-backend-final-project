@@ -1,20 +1,11 @@
 import express from "express";
 import {CropModel} from "../models/crop-model";
 import {saveCropService} from "../service/crop-service";
-import multer from 'multer';
-import path from 'path';
+import {ImageUploader} from "../util/image-uploader";
 
 const cropRoutes = express.Router();
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ storage: storage});
+const imageUploader = new ImageUploader();
+const upload = imageUploader.uploader('crop');
 
 cropRoutes.post('/saveCrop', upload.single('image'), async (req,res) => {
     try {
