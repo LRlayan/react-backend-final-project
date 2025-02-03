@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 import Vehicle from "../schema/vehicle";
 import Staff from "../schema/staff"
-import Equipment from "../schema/equipment";
-import Field from "../schema/field";
-import Log from "../schema/log";
 import {VehicleModel} from "../models/vehicle-model";
+import {EquipmentModel} from "../models/equipment-model";
+import Equipment from "../schema/equipment";
 
 interface Staff {
     code: string;
@@ -69,3 +68,34 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
     }
 }
 
+export async function updateEquipmentAssignStaff(equCode: string, equData: EquipmentModel) {
+    try {
+        const equipmentDocs = await Equipment.findOne( { equCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!equipmentDocs) {
+            throw new Error(`Equipment with code ${equCode} not found`);
+        }
+        const equId = equipmentDocs._id;
+
+        let equCodes : mongoose.Types.ObjectId[] = [];
+        const staffDocs = await Staff.find({code: { $in : equData.code}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
+        equCodes = staffDocs.map((staff) => staff._id);
+
+        await Staff.updateMany(
+            { assignEquipments: equId },
+            { $pull: { assignEquipments: equId} }
+        )
+
+        await Staff.updateMany(
+            { _id: { $in: equCodes } },
+            { $addToSet: { assignEquipments: equId } }
+        );
+        return equCodes;
+    } catch (e) {
+        console.error("Error updating staff assignEquipments:", error);
+        throw error;
+    }
+}
+
+export async function updateEquipmentAssignFields(equCode: string, equData: EquipmentModel) {
+
+}
