@@ -1,9 +1,10 @@
 import {EquipmentModel} from "../models/equipment-model";
-import {saveEquipment} from "../repository/equipment-repository";
+import {findEquipmentByCode, saveEquipment, updateEquipment} from "../repository/equipment-repository";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
-import Equipment from "../schema/equipment";
+import Equipment, {EquipmentType, StatusType} from "../schema/equipment";
+import {updateEquipmentAssignFields, updateEquipmentAssignStaff} from "../repository/staff-repository";
 
 export async function saveEquipmentService(equData: EquipmentModel) {
     try {
@@ -30,5 +31,42 @@ export async function saveEquipmentService(equData: EquipmentModel) {
     } catch (e) {
         console.error("Service layer error: Failed to save equipment!");
         throw new Error("Failed to save equipment. Please try again.");
+    }
+}
+
+export async function updateEquipmentService(equData: EquipmentModel) {
+    try {
+        const excitingEquipment = await findEquipmentByCode(equData.code);
+        if (!excitingEquipment) {
+            throw new Error("Equipment not found!");
+        }
+
+        let updatedStaffIds: mongoose.Types.ObjectId[] = [];
+        let updatedFieldIds: mongoose.Types.ObjectId[] = [];
+
+        if (equData.assignFields && Array.isArray(equData.assignFields)) {
+            const fieldsDocs = await Field.find({ code: { $in: equData.assignFields }});
+            updatedFieldIds = fieldsDocs.map((field) => field._id as mongoose.Types.ObjectId);
+        }
+
+        if (equData.assignStaffMembers && Array.isArray(equData.assignStaffMembers)) {
+            const staffDocs = await Staff.find( { code: { $in: equData.assignStaffMembers}});
+            updatedStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
+        }
+
+        excitingEquipment.code = equData.code;
+        excitingEquipment.name = equData.name;
+        excitingEquipment.equType = equData.equType as EquipmentType;
+        excitingEquipment.status = equData.status as StatusType;
+        excitingEquipment.count = equData.count;
+        excitingEquipment.assignStaffMembers = updatedStaffIds;
+        excitingEquipment.assignFields = updatedFieldIds;
+
+        const updatedStaffOfEquipment = await updateEquipmentAssignStaff(equData.code, equData);
+        const updatedFieldOfEquipment = await updateEquipmentAssignFields(equData.code, equData);
+        return await updateEquipment(excitingEquipment);
+    } catch (e) {
+        console.error("Service layer error: Failed to update equipment!", e);
+        throw new Error("Failed to update equipment, Please try again.");
     }
 }
