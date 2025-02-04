@@ -72,16 +72,16 @@ export async function updateStaffService(staffData: StaffModel) {
         let updateEquipmentIds : mongoose.Types.ObjectId[] = [];
         if (staffData.assignVehicles && Array.isArray(staffData.assignVehicles) || staffData.assignFields && Array.isArray(staffData.assignFields) || staffData.assignLogs && Array.isArray(staffData.assignLogs) || staffData.assignEquipments && Array.isArray(staffData.assignEquipments)) {
             const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles }});
-            updatedVehicleIds = vehicleDocs.map((vehicle) => vehicle._id);
+            updatedVehicleIds = vehicleDocs.map((vehicle) => vehicle._id as mongoose.Types.ObjectId);
 
             const fieldDocs = await Field.find({ code: { $in: staffData.assignFields}});
-            updatedFieldIds = fieldDocs.map((field) => field._id);
+            updatedFieldIds = fieldDocs.map((field) => field._id as mongoose.Types.ObjectId);
 
             const logDocs = await Log.find({ code: {  $in: staffData.assignLogs}});
-            updatedLogIds = logDocs.map((log) => log._id);
+            updatedLogIds = logDocs.map((log) => log._id as mongoose.Types.ObjectId);
 
             const equDocs = await Equipment.find({ code: { $in: staffData.assignEquipments}});
-            updateEquipmentIds = equDocs.map((equ) => equ._id);
+            updateEquipmentIds = equDocs.map((equ) => equ._id as mongoose.Types.ObjectId);
         }
 
         const updateData : Partial<IStaff> = {
