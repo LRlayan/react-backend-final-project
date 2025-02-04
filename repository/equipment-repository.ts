@@ -64,7 +64,7 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
         );
 
         await Equipment.updateMany(
-            { _id: { equCodes }},
+            { _id: { $in: equCodes }},
             { $addToSet: { assignStaff: staffId }}
         );
         return equCodes;
