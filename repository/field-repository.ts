@@ -67,7 +67,7 @@ export async function updatedFieldAssignStaff(code: string, staffData: StaffMode
         const staffId = staffDocs._id;
 
         let fieldCodes : mongoose.Types.ObjectId[] = [];
-        const fieldDocs = Field.find({ code : { $in: fieldData.assignStaffMembers }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const fieldDocs = Field.find({ code : { $in: staffData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
         fieldCodes = fieldDocs.map((field) => field._id);
 
         await Field.updateMany(
@@ -81,7 +81,7 @@ export async function updatedFieldAssignStaff(code: string, staffData: StaffMode
         );
         return fieldCodes;
     } catch (e) {
-        console.error("Error updating field assignFields:", e);
+        console.error("Error updating field assignStaff:", e);
         throw e;
     }
 }
