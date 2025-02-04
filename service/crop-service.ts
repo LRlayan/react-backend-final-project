@@ -1,9 +1,11 @@
 import {CropModel} from "../models/crop-model";
-import {saveCrop} from "../repository/crop-repository";
+import {findCropById, saveCrop, updateCrop} from "../repository/crop-repository";
 import mongoose from "mongoose";
 import Field from "../schema/field";
 import Log from "../schema/log";
-import Crop from "../schema/crop";
+import Crop, {ICrop, SeasonType} from "../schema/crop";
+import {updateFieldAssignCrop} from "../repository/field-repository";
+import {updateLogAssignCrop} from "../repository/log-repository";
 
 export async function saveCropService(cropData: CropModel) {
     try {
@@ -31,5 +33,41 @@ export async function saveCropService(cropData: CropModel) {
     } catch (e) {
         console.error("Service layer error: Failed to save crops!");
         throw new Error("Failed to save crops. Please try again.");
+    }
+}
+
+export async function updateCropService(cropData: CropModel) {
+    try {
+        const excitingCrop = await findCropById(cropData.code);
+        if (!excitingCrop) {
+            throw new Error("Crop not found!");
+        }
+
+        let updatedFieldIds : mongoose.Types.ObjectId[] = [];
+        let updatedLogIds : mongoose.Types.ObjectId[] = [];
+        if (cropData.assignFields && Array.isArray(cropData.assignFields) || cropData.assignLogs && Array.isArray(cropData.assignLogs)) {
+            const fieldDocs = await Field.find({ code: { $in: cropData.assignFields }});
+            updatedFieldIds = fieldDocs.map((field) => field._id as mongoose.Types.ObjectId);
+
+            const logDocs = await Log.find({ code: { $in: cropData.assignLogs }});
+            updatedLogIds = logDocs.map((log) => log._id as mongoose.Types.ObjectId);
+        }
+
+        const updatedData: Partial<ICrop> = {
+            name: cropData.name,
+            scientificName: cropData.scientificName,
+            category: cropData.category,
+            season: cropData.season as SeasonType,
+            image: cropData.image,
+            assignFields: updatedFieldIds,
+            assignLogs: updatedLogIds
+        }
+
+        const updatedFieldOfCrop = await updateFieldAssignCrop(cropData.code, cropData);
+        const updatedFieldOfLog = await updateLogAssignCrop(cropData.code, cropData);
+        return await updateCrop(cropData.code, updatedData);
+    } catch (e) {
+        console.error("Service layer error: Failed to update crop!", e);
+        throw new Error("Failed to update crop, Please try again.");
     }
 }
