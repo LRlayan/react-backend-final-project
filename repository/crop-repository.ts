@@ -1,7 +1,4 @@
-import Crop from "../schema/crop";
-import mongoose from "mongoose";
-import Log from "../schema/log";
-import Field from "../schema/field";
+import Crop, {ICrop} from "../schema/crop";
 
 interface Crop {
     code: string;
@@ -28,4 +25,24 @@ export async function saveCrop(cropData: Crop) {
         console.error("Failed to save crop:", e);
         throw e;
     }
+}
+
+export async function updateCrop(code: string, updateData: Partial<ICrop>) {
+    try {
+        const result = await Crop.findOneAndUpdate(
+            { code },
+            { $set: updateData },
+            { new: true }
+        );
+        return result
+            ? {message:"Crop update successfully"}
+            : {message:"Crop update Unsuccessfully"}
+    }catch (e) {
+        console.error("Failed to update crop:", e);
+        throw e;
+    }
+}
+
+export async function findCropById(code: string) {
+    return await Crop.findOne({ code }).populate("assignFields").populate("assignLogs").exec();
 }
