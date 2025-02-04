@@ -4,6 +4,8 @@ import Equipment from "../schema/equipment";
 import {EquipmentModel} from "../models/equipment-model";
 import Staff from "../schema/staff";
 import {StaffModel} from "../models/staff-model";
+import {CropModel} from "../models/crop-model";
+import Crop from "../schema/crop";
 
 interface Field {
     code: string;
@@ -82,6 +84,34 @@ export async function updatedFieldAssignStaff(code: string, staffData: StaffMode
         return fieldCodes;
     } catch (e) {
         console.error("Error updating field assignStaff:", e);
+        throw e;
+    }
+}
+
+export async function updateFieldAssignCrop(code: string, cropData: CropModel) {
+    try {
+        const cropDocs = await Crop.findOne( { code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!cropDocs) {
+            throw new Error(`Crop with code ${code} not found`);
+        }
+        const cropId = cropDocs._id;
+
+        let fieldCodes : mongoose.Types.ObjectId[] = [];
+        const fieldDocs = await Field.find({ code: { $in: cropData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        fieldCodes = fieldDocs.map((field) => field._id);
+
+        await Field.updateMany(
+            { assignCrops: cropId },
+            { $pull: cropId }
+        );
+
+        await Field.updateMany(
+            { _id: { $in: fieldCodes }},
+            { $addToSet: { assignCrops: cropId }}
+        );
+        return fieldCodes;
+    } catch (e) {
+        console.error("Error updating crop assignFields:", e);
         throw e;
     }
 }
