@@ -1,8 +1,7 @@
 import Log from "../schema/log";
-import mongoose from "mongoose";
-import Field from "../schema/field";
+import {StaffModel} from "../models/staff-model";
 import Staff from "../schema/staff";
-import Crop from "../schema/crop";
+import mongoose from "mongoose";
 
 interface Log {
     code: string;
@@ -28,6 +27,30 @@ export async function saveLog(logData: Log) {
     }
 }
 
-export async function updateLog(logData: Log) {
+export async function updatedLogAssignStaff(code: string, staffData: StaffModel) {
+    try {
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Log with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
 
+        let logCodes : mongoose.Types.ObjectId[] = [];
+        const logDocs = await Log.find({ code: { $in: staffData.assignLogs }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        logCodes = logDocs.map((log) => log._id);
+
+        await Log.updateMany(
+            { assignStaff: staffId },
+            { $pull: staffId }
+        );
+
+        await Log.updateMany(
+            { _id: { $in: logCodes }},
+            { $addToSet: { assignStaff: staffId }}
+        );
+        return logCodes;
+    } catch (e) {
+        console.error("Error updating log assignLogs:", e);
+        throw e;
+    }
 }
