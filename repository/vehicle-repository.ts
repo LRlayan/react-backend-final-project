@@ -47,16 +47,16 @@ export async function updateVehicle(vehicleCode: string, updateData: Partial<IVe
     }
 }
 
-export async function updatedVehicleAssignStaff(vehicleCode: string, staffData: StaffModel) {
+export async function updatedVehicleAssignStaff(code: string, staffData: StaffModel) {
     try {
-        const staffDocs = await Staff.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!staffDocs) {
-            throw new Error(`Staff with code ${vehicleCode} not found`);
+            throw new Error(`Staff with code ${code} not found`);
         }
         const staffId = staffDocs._id;
 
         let vehicleCodes : mongoose.Types.ObjectId[] = [];
-        const vehicleDocs = await Vehicle.find({ code: { $in: staffData.assignVehicles }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
         vehicleCodes = vehicleDocs.map((vehicle) => vehicle._id);
 
         await Vehicle.updateMany(
