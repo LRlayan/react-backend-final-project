@@ -6,10 +6,10 @@ import Log from "../schema/log";
 import Field from "../schema/field";
 import Equipment from "../schema/equipment";
 import Staff, {IStaff} from "../schema/staff";
-import {updatedStaffAssignVehicles} from "../repository/vehicle-repository";
-import {updatedStaffAssignLogs} from "../repository/log-repository";
-import {updatedStaffAssignFields} from "../repository/field-repository";
-import {updatedStaffAssignEquipments} from "../repository/equipment-repository";
+import {updatedVehicleAssignStaff} from "../repository/vehicle-repository";
+import {updatedFieldAssignStaff} from "../repository/field-repository";
+import {updatedEquipmentAssignStaff} from "../repository/equipment-repository";
+import {updatedLogAssignStaff} from "../repository/log-repository";
 
 export async function saveStaffService(staffData: StaffModel) {
     try {
@@ -105,10 +105,10 @@ export async function updateStaffService(staffData: StaffModel) {
             assignEquipments: updateEquipmentIds
         }
 
-        const updatedStaffAssignVehicle = await updatedStaffAssignVehicles(staffData.code,staffData);
-        const updatedStaffAssignLog = await updatedStaffAssignLogs(staffData.code,staffData);
-        const updatedStaffAssignField = await updatedStaffAssignFields(staffData.code,staffData);
-        const updatedStaffAssignEquipment = await updatedStaffAssignEquipments(staffData.code,staffData);
+        const updatedStaffAssignVehicle = await updatedVehicleAssignStaff(staffData.code,staffData);
+        const updatedStaffAssignLog = await updatedLogAssignStaff(staffData.code,staffData);
+        const updatedStaffAssignField = await updatedFieldAssignStaff(staffData.code,staffData);
+        const updatedStaffAssignEquipment = await updatedEquipmentAssignStaff(staffData.code,staffData);
         return await updateStaff(staffData.code,updateData);
     } catch (e) {
         console.error("Service layer error: Failed to update staff member!", e);
