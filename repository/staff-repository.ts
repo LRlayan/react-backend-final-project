@@ -112,6 +112,6 @@ export async function updateStaffAssignEquipments(code: string, equData: Equipme
     }
 }
 
-export async function findStaffById(code: string) : Promise<IStaff | null> {
+export async function findStaffById(code: string) {
     return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
