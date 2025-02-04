@@ -2,6 +2,8 @@ import Field from "../schema/field";
 import mongoose from "mongoose";
 import Equipment from "../schema/equipment";
 import {EquipmentModel} from "../models/equipment-model";
+import Staff from "../schema/staff";
+import {StaffModel} from "../models/staff-model";
 
 interface Field {
     code: string;
@@ -48,6 +50,34 @@ export async function updateFieldAssignEquipment(code: string, equData: Equipmen
         await Field.updateMany(
             { _id: { $in: fieldCodes } },
             { $addToSet: { assignEquipments: equId } }
+        );
+        return fieldCodes;
+    } catch (e) {
+        console.error("Error updating field assignFields:", e);
+        throw e;
+    }
+}
+
+export async function updatedFieldAssignStaff(code: string, staffData: StaffModel) {
+    try {
+        const staffDocs = Staff.findOne({ code }).lean<{ $in: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Field with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
+
+        let fieldCodes : mongoose.Types.ObjectId[] = [];
+        const fieldDocs = Field.find({ code : { $in: fieldData.assignStaffMembers }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        fieldCodes = fieldDocs.map((field) => field._id);
+
+        await Field.updateMany(
+            { assignStaff: staffId },
+            { $pull: staffId }
+        );
+
+        await Field.updateMany(
+            { _id: { $in: fieldCodes }},
+            { $addToSet: { assignStaff: staffId }}
         );
         return fieldCodes;
     } catch (e) {
