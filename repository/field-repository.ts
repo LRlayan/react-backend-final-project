@@ -60,14 +60,14 @@ export async function updateFieldAssignEquipment(code: string, equData: Equipmen
 
 export async function updatedFieldAssignStaff(code: string, staffData: StaffModel) {
     try {
-        const staffDocs = Staff.findOne({ code }).lean<{ $in: mongoose.Types.ObjectId } | null>();
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!staffDocs) {
             throw new Error(`Field with code ${code} not found`);
         }
         const staffId = staffDocs._id;
 
         let fieldCodes : mongoose.Types.ObjectId[] = [];
-        const fieldDocs = Field.find({ code : { $in: staffData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const fieldDocs = await Field.find({ code : { $in: staffData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
         fieldCodes = fieldDocs.map((field) => field._id);
 
         await Field.updateMany(
