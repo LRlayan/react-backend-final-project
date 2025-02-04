@@ -68,7 +68,7 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
     }
 }
 
-export async function updateStaff(code, updateData: Partial<IStaff>) {
+export async function updateStaff(code: string, updateData: Partial<IStaff>) {
     try {
         const result = await Staff.findOneAndUpdate(
             { code },
