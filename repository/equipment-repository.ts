@@ -1,4 +1,7 @@
 import Equipment, {IEquipment} from "../schema/equipment";
+import Staff from "../schema/staff";
+import mongoose from "mongoose";
+import {StaffModel} from "../models/staff-model";
 
 interface Equipment {
     code: string;
@@ -41,4 +44,32 @@ export async function updateEquipment(code: string, updateData: Partial<IEquipme
 
 export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
     return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
+}
+
+export async function updatedEquipmentAssignStaff(code: string, staffData: StaffModel) {
+    try {
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Equipment with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
+
+        let equCodes : mongoose.Types.ObjectId[] = [];
+        const equDocs = await Equipment.find({ code: { $in: staffData.assignEquipments }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        equCodes = equDocs.map((equ) => equ._id);
+
+        await Equipment.updateMany(
+            { assignStaff: staffId },
+            { $pull: staffId }
+        );
+
+        await Equipment.updateMany(
+            { _id: { equCodes }},
+            { $addToSet: { assignStaff: staffId }}
+        );
+        return equCodes;
+    } catch (e) {
+        console.error("Error updating equipments assignStaff:", e);
+        throw e;
+    }
 }
