@@ -5,7 +5,7 @@ import Vehicle from "../schema/vehicle";
 import Log from "../schema/log";
 import Field from "../schema/field";
 import Equipment from "../schema/equipment";
-import Staff, {IStaff} from "../schema/staff";
+import Staff, {DesignationType, GenderType, IStaff, RoleType} from "../schema/staff";
 import {updatedVehicleAssignStaff} from "../repository/vehicle-repository";
 import {updatedFieldAssignStaff} from "../repository/field-repository";
 import {updatedEquipmentAssignStaff} from "../repository/equipment-repository";
@@ -88,8 +88,8 @@ export async function updateStaffService(staffData: StaffModel) {
             firstName: staffData.firstName,
             lastName: staffData.lastName,
             joinedDate: staffData.joinedDate,
-            designation: staffData.designation,
-            gender: staffData.gender,
+            designation: staffData.designation as DesignationType,
+            gender: staffData.gender as GenderType,
             dob: staffData.dob,
             addressLine01: staffData.addressLine01,
             addressLine02: staffData.addressLine02,
@@ -98,7 +98,7 @@ export async function updateStaffService(staffData: StaffModel) {
             addressLine05: staffData.addressLine05,
             mobile: staffData.mobile,
             email: staffData.email,
-            role: staffData.role,
+            role: staffData.role as RoleType,
             assignVehicles: updatedVehicleIds,
             assignLogs: updatedLogIds,
             assignFields: updatedFieldIds,
@@ -109,7 +109,8 @@ export async function updateStaffService(staffData: StaffModel) {
         const updatedStaffAssignLog = await updatedLogAssignStaff(staffData.code,staffData);
         const updatedStaffAssignField = await updatedFieldAssignStaff(staffData.code,staffData);
         const updatedStaffAssignEquipment = await updatedEquipmentAssignStaff(staffData.code,staffData);
-        return await updateStaff(staffData.code,updateData);
+        const result = await updateStaff(staffData.code,updateData);
+        return result;
     } catch (e) {
         console.error("Service layer error: Failed to update staff member!", e);
         throw new Error("Failed to update staff member, Please try again.");
