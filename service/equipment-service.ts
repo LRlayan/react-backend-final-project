@@ -45,12 +45,10 @@ export async function updateEquipmentService(equData: EquipmentModel) {
         let updatedStaffIds: mongoose.Types.ObjectId[] = [];
         let updatedFieldIds: mongoose.Types.ObjectId[] = [];
 
-        if (equData.assignFields && Array.isArray(equData.assignFields)) {
+        if (equData.assignFields && Array.isArray(equData.assignFields) || equData.assignStaffMembers && Array.isArray(equData.assignStaffMembers)) {
             const fieldsDocs = await Field.find({ code: { $in: equData.assignFields }});
             updatedFieldIds = fieldsDocs.map((field) => field._id as mongoose.Types.ObjectId);
-        }
 
-        if (equData.assignStaffMembers && Array.isArray(equData.assignStaffMembers)) {
             const staffDocs = await Staff.find( { code: { $in: equData.assignStaffMembers}});
             updatedStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
         }
