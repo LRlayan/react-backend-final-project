@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Vehicle from "../schema/vehicle";
-import Staff from "../schema/staff"
+import Staff, {IStaff} from "../schema/staff"
 import {VehicleModel} from "../models/vehicle-model";
 import {EquipmentModel} from "../models/equipment-model";
 import Equipment from "../schema/equipment";
@@ -68,6 +68,22 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
     }
 }
 
+export async function updateStaff(code, updateData: Partial<IStaff>) {
+    try {
+        const result = await Staff.findOneAndUpdate(
+            { code },
+            { $set: updateData },
+            { new: true }
+        );
+        return result
+            ? { message: "Staff update successfully" }
+            : { message: "Staff update unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to update staff:", e);
+        throw e;
+    }
+}
+
 export async function updateStaffAssignEquipments(code: string, equData: EquipmentModel) {
     try {
         const equipmentDocs = await Equipment.findOne( { code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -94,4 +110,8 @@ export async function updateStaffAssignEquipments(code: string, equData: Equipme
         console.error("Error updating staff assignEquipments:", e);
         throw e;
     }
+}
+
+export async function findStaffById(code: string) : Promise<IStaff | null> {
+    return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
