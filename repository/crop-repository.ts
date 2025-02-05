@@ -73,6 +73,6 @@ export async function updateCropAssignLog(code: string, logData: LogModel) {
     }
 }
 
-export async function findCropById(code: string) {
+export async function findCropById(code: string) : Promise<ICrop | null> {
     return await Crop.findOne({ code }).populate("assignFields").populate("assignLogs").exec();
 }
