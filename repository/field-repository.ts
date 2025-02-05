@@ -6,6 +6,8 @@ import Staff from "../schema/staff";
 import {StaffModel} from "../models/staff-model";
 import {CropModel} from "../models/crop-model";
 import Crop from "../schema/crop";
+import {LogModel} from "../models/log-model";
+import Log from "../schema/log";
 
 interface Field {
     code: string;
@@ -55,7 +57,7 @@ export async function updateFieldAssignEquipment(code: string, equData: Equipmen
         );
         return fieldCodes;
     } catch (e) {
-        console.error("Error updating field assignFields:", e);
+        console.error("Error updating field assignEquipments:", e);
         throw e;
     }
 }
@@ -111,7 +113,35 @@ export async function updateFieldAssignCrop(code: string, cropData: CropModel) {
         );
         return fieldCodes;
     } catch (e) {
-        console.error("Error updating crop assignFields:", e);
+        console.error("Error updating field assignCrops:", e);
+        throw e;
+    }
+}
+
+export async function updateFieldAssignLog(code: string, logData: LogModel) {
+    try {
+        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!logDocs) {
+            throw new Error(`Log with code ${code} not found`);
+        }
+        const logId = logDocs._id;
+
+        let fieldCodes : mongoose.Types.ObjectId[] = [];
+        const fieldDocs = await Field.find({ code: { $in: logData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        fieldCodes = fieldDocs.map((field) => field._id);
+
+        await Field.updateMany(
+            { assignLog: logId },
+            { $pull: logId }
+        );
+
+        await Field.updateMany(
+            { _id: { $in: fieldCodes }},
+            { $addToSet: { assignLogs: logId }}
+        );
+        return fieldCodes;
+    } catch (e) {
+        console.error("Error updating fields assignLogs:", e);
         throw e;
     }
 }
