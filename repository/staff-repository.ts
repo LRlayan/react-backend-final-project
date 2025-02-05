@@ -4,6 +4,8 @@ import Staff, {IStaff} from "../schema/staff"
 import {VehicleModel} from "../models/vehicle-model";
 import {EquipmentModel} from "../models/equipment-model";
 import Equipment from "../schema/equipment";
+import {LogModel} from "../models/log-model";
+import Log from "../schema/log";
 
 interface Staff {
     code: string;
@@ -40,6 +42,22 @@ export async function saveStaff(staffData: Staff) {
     }
 }
 
+export async function updateStaff(code: string, updateData: Partial<IStaff>) {
+    try {
+        const result = await Staff.findOneAndUpdate(
+            { code },
+            { $set: updateData },
+            { new: true }
+        );
+        return result
+            ? { message: "Staff update successfully" }
+            : { message: "Staff update unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to update staff:", e);
+        throw e;
+    }
+}
+
 export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData: VehicleModel) {
     try {
         const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -68,22 +86,6 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
     }
 }
 
-export async function updateStaff(code: string, updateData: Partial<IStaff>) {
-    try {
-        const result = await Staff.findOneAndUpdate(
-            { code },
-            { $set: updateData },
-            { new: true }
-        );
-        return result
-            ? { message: "Staff update successfully" }
-            : { message: "Staff update unsuccessfully!" };
-    } catch (e) {
-        console.error("Failed to update staff:", e);
-        throw e;
-    }
-}
-
 export async function updateStaffAssignEquipments(code: string, equData: EquipmentModel) {
     try {
         const equipmentDocs = await Equipment.findOne( { code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -108,6 +110,34 @@ export async function updateStaffAssignEquipments(code: string, equData: Equipme
         return staffCodes;
     } catch (e) {
         console.error("Error updating staff assignEquipments:", e);
+        throw e;
+    }
+}
+
+export async function updateStaffAssignLog(code: string, logData: LogModel) {
+    try {
+        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        if (!logDocs) {
+            throw new Error(`log with code ${code} not found`);
+        }
+        const logId = logDocs._id;
+
+        let staffCodes : mongoose.Types.ObjectId[] = [];
+        const staffDocs = await Staff.find({ code: { $in: logData.assignStaff }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        staffCodes = staffDocs.map((staff) => staff._id);
+
+        await Staff.updateMany(
+            { assignLogs: logId },
+            { $pull: logId }
+        );
+
+        await Staff.updateMany(
+            { _id: { $in: staffCodes }},
+            { $addToSet: { assignLogs: logId }}
+        );
+        return staffCodes;
+    } catch (e) {
+        console.error("Error updating staff assignLogs:", e);
         throw e;
     }
 }
