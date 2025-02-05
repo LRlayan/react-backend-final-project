@@ -1,6 +1,6 @@
 import express from "express";
 import {LogModel} from "../models/log-model";
-import {saveLogService} from "../service/log-service";
+import {saveLogService, updateLogService} from "../service/log-service";
 import {ImageUploader} from "../util/image-uploader";
 
 const logRoutes = express.Router();
