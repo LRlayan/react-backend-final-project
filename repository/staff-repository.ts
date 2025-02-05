@@ -6,6 +6,8 @@ import {EquipmentModel} from "../models/equipment-model";
 import Equipment from "../schema/equipment";
 import {LogModel} from "../models/log-model";
 import Log from "../schema/log";
+import {FieldModel} from "../models/field-model";
+import Field from "../schema/field";
 
 interface Staff {
     code: string;
@@ -138,6 +140,34 @@ export async function updateStaffAssignLog(code: string, logData: LogModel) {
         return staffCodes;
     } catch (e) {
         console.error("Error updating staff assignLogs:", e);
+        throw e;
+    }
+}
+
+export async function updateFieldsAssignStaff(code: string, fieldData: FieldModel) {
+    try {
+        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        if (!fieldDocs) {
+            throw new Error(`Staff with code ${code} not found`);
+        }
+        const fieldId = fieldDocs._id;
+
+        let staffCodes : mongoose.Types.ObjectId[] = []
+        const staffDocs = await Staff.find({ code: { $in: fieldData.assignStaffMembers}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        staffCodes = staffDocs.map((staff) => staff._id);
+
+        await Staff.updateMany(
+            { assignField: fieldId },
+            { $pull: fieldId }
+        );
+
+        await Staff.updateMany(
+            { _id: { $in: staffCodes } },
+            { $addToSet: { assignFields: fieldId } }
+        );
+        return staffCodes;
+    } catch (e) {
+        console.error("Error updating staff assignFields:", e);
         throw e;
     }
 }
