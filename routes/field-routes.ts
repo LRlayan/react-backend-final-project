@@ -1,5 +1,5 @@
 import express from "express";
-import {saveFieldService} from "../service/field-service";
+import {saveFieldService, updateFieldService} from "../service/field-service";
 import {FieldModel} from "../models/field-model";
 import {ImageUploader} from "../util/image-uploader";
 
@@ -25,8 +25,18 @@ fieldRoutes.post('/saveField', upload.single('image'), async (req,res) => {
     }
 });
 
-fieldRoutes.put('/updateField/:fieldId', async (req,res) => {
-
+fieldRoutes.put('/updateField/:code', upload.single('image'),async (req,res) => {
+    const code = req.params;
+    const {name, location, extentSize, assignLogs, assignStaffMembers, assignCrops, assignEquipments} = req.body;
+    const image = req.file? req.file.filename : null;
+    try {
+        const updateField = new FieldModel(code, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
+        const result = await updateFieldService(updateField);
+        res.status(204).send(result);
+    } catch (e) {
+        console.log("Failed to update field!",e);
+        res.status(400).send("Failed to update field. Please try again.");
+    }
 });
 
 fieldRoutes.delete('/deleteField/:fieldId', async (req,res) =>{
