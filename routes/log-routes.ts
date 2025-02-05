@@ -24,8 +24,17 @@ logRoutes.post('/saveLog', upload.single('image'), async (req,res) =>{
     }
 });
 
-logRoutes.put('/updateLog/:logId', async (req,res) => {
-
+logRoutes.put('/updateLog/:code', upload.single('image'), async (req,res) => {
+    const code = req.params;
+    const { name, logDate, logDetails, assignFields, assignStaff, assignCrops } = req.body;
+    try {
+        const updateLog = new LogModel(code, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
+        const result = await updateLogService(updateLog);
+        res.status(204).send(result);
+    } catch (e) {
+        console.log("Failed to update log!",e);
+        res.status(400).send("Failed to update log. Please try again.");
+    }
 });
 
 logRoutes.delete('/deleteLog/:logId', async (req,res) => {
