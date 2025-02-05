@@ -2,6 +2,8 @@ import Equipment, {IEquipment} from "../schema/equipment";
 import Staff from "../schema/staff";
 import mongoose from "mongoose";
 import {StaffModel} from "../models/staff-model";
+import {FieldModel} from "../models/field-model";
+import Field from "../schema/field";
 
 interface Equipment {
     code: string;
@@ -42,10 +44,6 @@ export async function updateEquipment(code: string, updateData: Partial<IEquipme
     }
 }
 
-export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
-    return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
-}
-
 export async function updatedEquipmentAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -72,4 +70,36 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
         console.error("Error updating equipments assignStaff:", e);
         throw e;
     }
+}
+
+export async function updateFieldsAssignEqu(code: string, fieldData: FieldModel) {
+    try {
+        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        if (!fieldDocs) {
+            throw new Error(`Equipment with code ${code} not found`);
+        }
+        const fieldId = fieldDocs._id;
+
+        let equCodes : mongoose.Types.ObjectId[] = []
+        const equDocs = await Equipment.find({ code: { $in: fieldData.assignEquipments}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        equCodes = equDocs.map((equ) => equ._id);
+
+        await Equipment.updateMany(
+            { assignField: fieldId },
+            { $pull: fieldId }
+        );
+
+        await Equipment.updateMany(
+            { _id: { $in: equCodes } },
+            { $addToSet: { assignFields: fieldId } }
+        );
+        return equCodes;
+    } catch (e) {
+        console.error("Error updating equipment assignFields:", e);
+        throw e;
+    }
+}
+
+export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
+    return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
 }
