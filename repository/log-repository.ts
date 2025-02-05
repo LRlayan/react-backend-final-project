@@ -1,4 +1,4 @@
-import Log from "../schema/log";
+import Log, {ILog} from "../schema/log";
 import {StaffModel} from "../models/staff-model";
 import Staff from "../schema/staff";
 import mongoose from "mongoose";
@@ -16,6 +16,10 @@ interface Log {
     assignCrops?: string[];
 }
 
+export async function findLogById(code: string) {
+    return await Log.findOne({ code }).populate("assignFields").populate("assignStaff").populate("assignCrops").exec();
+}
+
 export async function saveLog(logData: Log) {
     try {
         const newLog = new Log(logData);
@@ -25,6 +29,22 @@ export async function saveLog(logData: Log) {
             : { message: "Log saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save log:", e);
+        throw e;
+    }
+}
+
+export async function updateLog(code: string, logDate: Partial<ILog>) {
+    try {
+        const result = await Log.findOneAndUpdate(
+            { code },
+            { $set: logDate },
+            { new: true }
+        );
+        return result
+            ? {message:"Log update successfully"}
+            : {message:"Log update Unsuccessfully"}
+    } catch (e) {
+        console.error("Failed to update log:", e);
         throw e;
     }
 }
