@@ -63,8 +63,8 @@ export async function updateCropService(cropData: CropModel) {
             assignLogs: updatedLogIds
         }
 
-        const updatedFieldOfCrop = await updateFieldAssignCrop(cropData.code, cropData);
-        const updatedFieldOfLog = await updateLogAssignCrop(cropData.code, cropData);
+        const updatedCropOfField = await updateFieldAssignCrop(cropData.code, cropData);
+        const updatedCropOfLog = await updateLogAssignCrop(cropData.code, cropData);
         return await updateCrop(cropData.code, updatedData);
     } catch (e) {
         console.error("Service layer error: Failed to update crop!", e);
