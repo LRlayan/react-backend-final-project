@@ -2,6 +2,8 @@ import Crop, {ICrop} from "../schema/crop";
 import {LogModel} from "../models/log-model";
 import Log from "../schema/log";
 import mongoose from "mongoose";
+import {FieldModel} from "../models/field-model";
+import Field from "../schema/field";
 
 interface Crop {
     code: string;
@@ -69,6 +71,34 @@ export async function updateCropAssignLog(code: string, logData: LogModel) {
         );
         return cropCodes;
     } catch (e) {
+        throw e;
+    }
+}
+
+export async function updateFieldsAssignCrop(code: string, fieldData: FieldModel) {
+    try {
+        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        if (!fieldDocs) {
+            throw new Error(`Crop with code ${code} not found`);
+        }
+        const fieldId = fieldDocs._id;
+
+        let cropCodes : mongoose.Types.ObjectId[] = []
+        const cropDocs = await Crop.find({ code: { $in: fieldData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        cropCodes = cropDocs.map((crop) => crop._id);
+
+        await Crop.updateMany(
+            { assignField: fieldId },
+            { $pull: fieldId }
+        );
+
+        await Crop.updateMany(
+            { _id: { $in: cropCodes } },
+            { $addToSet: { assignFields: fieldId } }
+        );
+        return cropCodes;
+    } catch (e) {
+        console.error("Error updating crop assignFields:", e);
         throw e;
     }
 }
