@@ -1,4 +1,4 @@
-import Field from "../schema/field";
+import Field, {IField} from "../schema/field";
 import mongoose from "mongoose";
 import Equipment from "../schema/equipment";
 import {EquipmentModel} from "../models/equipment-model";
@@ -8,6 +8,7 @@ import {CropModel} from "../models/crop-model";
 import Crop from "../schema/crop";
 import {LogModel} from "../models/log-model";
 import Log from "../schema/log";
+import {FieldModel} from "../models/field-model";
 
 interface Field {
     code: string;
@@ -30,6 +31,22 @@ export async function saveField(fieldData: Field) {
             : { message: "Field saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save field:", e);
+        throw e;
+    }
+}
+
+export async function updateField(fieldData: FieldModel): Partial<IField> {
+    try {
+        const result = await Field.findOneAndUpdate(
+            { code },
+            { $set: fieldData },
+            { new: true }
+        );
+        return result
+            ? {message:"Field update successfully"}
+            : {message:"Field update Unsuccessfully"}
+    } catch (e) {
+        console.error("Failed to update field:", e);
         throw e;
     }
 }
@@ -144,4 +161,8 @@ export async function updateFieldAssignLog(code: string, logData: LogModel) {
         console.error("Error updating fields assignLogs:", e);
         throw e;
     }
+}
+
+export async function findFieldById(code: string): Promise<IField | null> {
+    return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEuipments").exec();
 }
