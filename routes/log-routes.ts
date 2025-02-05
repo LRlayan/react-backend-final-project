@@ -27,6 +27,7 @@ logRoutes.post('/saveLog', upload.single('image'), async (req,res) =>{
 logRoutes.put('/updateLog/:code', upload.single('image'), async (req,res) => {
     const code = req.params;
     const { name, logDate, logDetails, assignFields, assignStaff, assignCrops } = req.body;
+    const image = req.file? req.file.filename : null;
     try {
         const updateLog = new LogModel(code, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
         const result = await updateLogService(updateLog);
