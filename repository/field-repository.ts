@@ -194,6 +194,23 @@ export async function deleteStaffInField(code: string) {
     }
 }
 
+export async function deleteCropInField(code: string) {
+    try {
+        const cropDocs = await Crop.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!cropDocs) {
+            throw new Error(`Crop with code ${code} not found`)
+        }
+        const cropId = cropDocs._id;
+        return Field.updateMany(
+            { assignCrops: cropId },
+            { $pull: { assignCrops: cropId } }
+        );
+    } catch (e) {
+        console.error("Error removing crop from field:", e);
+        throw e;
+    }
+}
+
 export async function findFieldById(code: string): Promise<IField | null> {
     return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEuipments").exec();
 }
