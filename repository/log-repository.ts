@@ -147,6 +147,23 @@ export async function deleteStaffInLog(code: string) {
     }
 }
 
+export async function deleteFieldInLog(code: string) {
+    try {
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!fieldDocs) {
+            throw new Error(`Field with code ${code} not found`)
+        }
+        const fieldId = fieldDocs._id;
+        return await Log.updateMany(
+            { assignFields: fieldId },
+            { $pull: { assignField: fieldId } }
+        );
+    } catch (e) {
+        console.error("Error removing field from log:", e);
+        throw e;
+    }
+}
+
 export async function findLogById(code: string): Promise<ILog | null> {
     return await Log.findOne({ code }).populate("assignFields").populate("assignStaff").populate("assignCrops").exec();
 }
