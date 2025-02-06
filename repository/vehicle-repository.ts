@@ -47,6 +47,20 @@ export async function updateVehicle(vehicleCode: string, updateData: Partial<IVe
     }
 }
 
+export async function deleteVehicle(vehicleCode: string) {
+    try {
+        const result = await Vehicle.deleteOne(
+            {vehicleCode}
+        );
+        return result
+            ? { message: "Vehicle delete successfully" }
+            : { message: "Vehicle delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete vehicle:", e);
+        throw e;
+    }
+}
+
 export async function updatedVehicleAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
