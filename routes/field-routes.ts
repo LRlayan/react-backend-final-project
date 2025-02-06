@@ -26,7 +26,7 @@ fieldRoutes.post('/saveField', upload.single('image'), async (req,res) => {
 });
 
 fieldRoutes.put('/updateField/:code', upload.single('image'),async (req,res) => {
-    const code = req.params;
+    const code = req.params.code;
     const {name, location, extentSize, assignLogs, assignStaffMembers, assignCrops, assignEquipments} = req.body;
     const image = req.file? req.file.filename : null;
     try {
