@@ -117,6 +117,23 @@ export async function deleteStaffInEquipment(code: string) {
     }
 }
 
+export async function deleteFieldInEquipment(code: string) {
+    try {
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!fieldDocs) {
+            throw new Error(`Field with code ${code} not found`)
+        }
+        const fieldId = fieldDocs._id;
+        return Equipment.updateMany(
+            { assignFields: fieldId },
+            { $pull: { assignFields: fieldId } }
+        );
+    } catch (e) {
+        console.error("Error removing field from equipment:", e);
+        throw e;
+    }
+}
+
 export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
     return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
 }
