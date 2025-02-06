@@ -1,4 +1,4 @@
-import {findStaffById, saveStaff, updateStaff} from "../repository/staff-repository";
+import {deleteStaff, findStaffById, saveStaff, updateStaff} from "../repository/staff-repository";
 import { StaffModel } from "../models/staff-model";
 import mongoose from "mongoose";
 import Vehicle from "../schema/vehicle";
@@ -6,10 +6,10 @@ import Log from "../schema/log";
 import Field from "../schema/field";
 import Equipment from "../schema/equipment";
 import Staff, {DesignationType, GenderType, IStaff, RoleType} from "../schema/staff";
-import {updatedVehicleAssignStaff} from "../repository/vehicle-repository";
-import {updatedFieldAssignStaff} from "../repository/field-repository";
-import {updatedEquipmentAssignStaff} from "../repository/equipment-repository";
-import {updatedLogAssignStaff} from "../repository/log-repository";
+import {deleteStaffInVehicle, updatedVehicleAssignStaff} from "../repository/vehicle-repository";
+import {deleteStaffInField, updatedFieldAssignStaff} from "../repository/field-repository";
+import {deleteStaffInEquipment, updatedEquipmentAssignStaff} from "../repository/equipment-repository";
+import {deleteStaffInLog, updatedLogAssignStaff} from "../repository/log-repository";
 
 export async function saveStaffService(staffData: StaffModel) {
     try {
@@ -114,5 +114,22 @@ export async function updateStaffService(staffData: StaffModel) {
     } catch (e) {
         console.error("Service layer error: Failed to update staff member!", e);
         throw new Error("Failed to update staff member, Please try again.");
+    }
+}
+
+export async function deleteStaffService(code: string) {
+    try {
+        const excitingStaff = await findStaffById(code);
+        if (!excitingStaff) {
+            throw new Error(`Staff member-${code} is not found`);
+        }
+        const deleteStaffIdsOfVehicle = await deleteStaffInVehicle(code);
+        const deleteStaffIdsOfLog = await deleteStaffInLog(code);
+        const deleteStaffIdsOfField = await deleteStaffInField(code);
+        const deleteStaffIdsOfEquipment = await deleteStaffInEquipment(code);
+        return await deleteStaff(code);
+    } catch (e) {
+        console.error("Service layer error: Failed to delete staff member!", e);
+        throw new Error("Failed to delete staff member, Please try again.");
     }
 }
