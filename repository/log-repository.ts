@@ -47,6 +47,20 @@ export async function updateLog(code: string, logDate: Partial<ILog>) {
     }
 }
 
+export async function deleteLog(code: string) {
+    try {
+        const result = await Log.deleteOne(
+            { code }
+        );
+        return result
+            ? { message: "Log delete successfully" }
+            : { message: "Log delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete log:", e);
+        throw e;
+    }
+}
+
 export async function updatedLogAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
