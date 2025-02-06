@@ -1,11 +1,11 @@
 import {EquipmentModel} from "../models/equipment-model";
-import {findEquipmentByCode, saveEquipment, updateEquipment} from "../repository/equipment-repository";
+import {deleteEquipment, findEquipmentByCode, saveEquipment, updateEquipment} from "../repository/equipment-repository";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
 import Equipment, {EquipmentType, IEquipment, StatusType} from "../schema/equipment";
-import {updateStaffAssignEquipments} from "../repository/staff-repository";
-import {updateFieldAssignEquipment} from "../repository/field-repository";
+import {deleteEquInStaff, updateStaffAssignEquipments} from "../repository/staff-repository";
+import {deleteEquInField, updateFieldAssignEquipment} from "../repository/field-repository";
 
 export async function saveEquipmentService(equData: EquipmentModel) {
     try {
@@ -68,5 +68,20 @@ export async function updateEquipmentService(equData: EquipmentModel) {
     } catch (e) {
         console.error("Service layer error: Failed to update equipment!", e);
         throw new Error("Failed to update equipment, Please try again.");
+    }
+}
+
+export async function deleteEquipmentService(code: string) {
+    try {
+        const excitingEquipment = await findEquipmentByCode(code)
+        if (!excitingEquipment) {
+            throw new Error(`Equipment-${code} is not found`);
+        }
+        const deleteEquIdsOfStaff = await deleteEquInStaff(code);
+        const deleteEquIdsOfField = await deleteEquInField(code);
+        return await deleteEquipment(code);
+    } catch (e) {
+        console.error("Service layer error: Failed to delete equipment!", e);
+        throw new Error("Failed to delete equipment, Please try again.");
     }
 }
