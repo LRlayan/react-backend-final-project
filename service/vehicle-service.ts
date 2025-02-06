@@ -1,9 +1,9 @@
 import {VehicleModel} from "../models/vehicle-model";
-import {findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
+import {deleteVehicle, findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
 import Vehicle, {IVehicle, StatusType} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
-import {updateStaffAssignVehicle} from "../repository/staff-repository";
+import {deleteVehicleInStaff, updateStaffAssignVehicle} from "../repository/staff-repository";
 
 export async function saveVehicleService(vehicleData: VehicleModel) {
     try {
@@ -59,5 +59,19 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
     } catch (e) {
         console.error("Service layer error: Failed to update vehicle!", e);
         throw new Error("Failed to update vehicle, Please try again.");
+    }
+}
+
+export async function deleteVehicleService(vehicleCode: string) {
+    try {
+        const excitingVehicle = await findVehicleByCode(vehicleCode);
+        if (!excitingVehicle) {
+            throw new Error("Vehicle is not found");
+        }
+        const deleteVehicleIdsOfStaff = await deleteVehicleInStaff(vehicleCode);
+        return await deleteVehicle(vehicleCode);
+    } catch (e) {
+        console.log("Vehicle service: Failed to delete vehicle",e);
+        throw e;
     }
 }
