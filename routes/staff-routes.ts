@@ -1,5 +1,5 @@
 import express from "express";
-import {saveStaffService, updateStaffService} from "../service/staff-service";
+import {deleteStaffService, saveStaffService, updateStaffService} from "../service/staff-service";
 import {StaffModel} from "../models/staff-model";
 
 const staffRoutes = express.Router();
@@ -35,8 +35,18 @@ staffRoutes.put('/updateStaff/:code', async (req,res) => {
     }
 });
 
-staffRoutes.delete('/deleteStaff', async (req,res) => {
-
+staffRoutes.delete('/deleteStaff/:code', async (req,res) => {
+    const code = req.params.code;
+    try {
+        if (!code) {
+            throw new Error("Please required staff member code!")
+        }
+        const result = await deleteStaffService(code);
+        res.status(204).send(result);
+    } catch (e) {
+        console.error("Failed to delete staff!", e);
+        res.status(400).send("Failed to delete staff. Please try again.");
+    }
 });
 
 staffRoutes.get('/getAllStaff', async (req,res) => {
