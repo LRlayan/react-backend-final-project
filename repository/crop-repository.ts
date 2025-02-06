@@ -48,6 +48,20 @@ export async function updateCrop(code: string, updateData: Partial<ICrop>) {
     }
 }
 
+export async function deleteCrop(code: string) {
+    try {
+        const result = await Crop.deleteOne(
+            { code }
+        );
+        return result
+            ? { message: "Crop delete successfully" }
+            : { message: "Crop delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete crop:", e);
+        throw e;
+    }
+}
+
 export async function updateCropAssignLog(code: string, logData: LogModel) {
     try {
         const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -116,20 +130,6 @@ export async function deleteFieldInCrop(code: string) {
         );
     } catch (e) {
         console.error("Error removing field from crop:", e);
-        throw e;
-    }
-}
-
-export async function deleteCrop(code: string) {
-    try {
-        const result = await Crop.deleteOne(
-            { code }
-        );
-        return result
-            ? { message: "Crop delete successfully" }
-            : { message: "Crop delete unsuccessfully!" };
-    } catch (e) {
-        console.error("Failed to delete crop:", e);
         throw e;
     }
 }
