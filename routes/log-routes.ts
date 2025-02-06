@@ -1,6 +1,6 @@
 import express from "express";
 import {LogModel} from "../models/log-model";
-import {saveLogService, updateLogService} from "../service/log-service";
+import {deleteLogService, saveLogService, updateLogService} from "../service/log-service";
 import {ImageUploader} from "../util/image-uploader";
 
 const logRoutes = express.Router();
@@ -38,8 +38,18 @@ logRoutes.put('/updateLog/:code', upload.single('image'), async (req,res) => {
     }
 });
 
-logRoutes.delete('/deleteLog/:logId', async (req,res) => {
-
+logRoutes.delete('/deleteLog/:code', async (req,res) => {
+    const code = req.params.code;
+    try {
+        if (!code) {
+            throw new Error("Please required log code");
+        }
+        const result = await deleteLogService(code);
+        res.status(204).send(result);
+    } catch (e) {
+        console.error("Failed to delete log!", e);
+        res.status(400).send("Failed to delete log. Please try again.");
+    }
 });
 
 logRoutes.get('/getALlLog', async (req,res) => {
