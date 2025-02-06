@@ -1,6 +1,6 @@
 import express from "express";
 import {CropModel} from "../models/crop-model";
-import {saveCropService, updateCropService} from "../service/crop-service";
+import {deleteCropService, saveCropService, updateCropService} from "../service/crop-service";
 import {ImageUploader} from "../util/image-uploader";
 
 const cropRoutes = express.Router();
@@ -39,8 +39,18 @@ cropRoutes.put('/updateCrop/:code', upload.single('image'), async (req,res) => {
     }
 });
 
-cropRoutes.delete('/deleteCrop/:cropId', async (req,res) => {
-
+cropRoutes.delete('/deleteCrop/:code', async (req,res) => {
+    const code = req.params.code;
+    try {
+        if (!code) {
+            throw new Error("Please required crop code");
+        }
+        const result = await deleteCropService(code);
+        res.status(204).send(result);
+    } catch (e) {
+        console.error("Failed to delete crop!", e);
+        res.status(400).send("Failed to delete crop. Please try again.");
+    }
 });
 
 cropRoutes.get('/getAllCrop', async (req,res) => {
