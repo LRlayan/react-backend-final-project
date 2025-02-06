@@ -203,6 +203,23 @@ export async function deleteVehicleInStaff(vehicleCode: string) {
     }
 }
 
+export async function deleteFieldInStaff(code: string) {
+    try {
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!fieldDocs) {
+            throw new Error(`Field with code ${code} not found`);
+        }
+        const fieldId = fieldDocs._id;
+        return await Staff.updateMany(
+            { assignField: fieldId },
+            { $pull: { assignField: fieldId } }
+        );
+    } catch (e) {
+        console.error("Error removing field from staff:", e);
+        throw e;
+    }
+}
+
 export async function findStaffById(code: string) : Promise<IStaff | null> {
     return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
