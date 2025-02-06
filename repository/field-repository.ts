@@ -35,7 +35,7 @@ export async function saveField(fieldData: Field) {
     }
 }
 
-export async function updateField(fieldData: FieldModel): Partial<IField> {
+export async function updateField(code: string ,fieldData: Partial<IField>) {
     try {
         const result = await Field.findOneAndUpdate(
             { code },
