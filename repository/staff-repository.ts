@@ -237,6 +237,23 @@ export async function deleteLogInStaff(code: string) {
     }
 }
 
+export async function deleteEquInStaff(code: string) {
+    try {
+        const equDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!equDocs) {
+            throw new Error(`Log with code ${code} not found`);
+        }
+        const equId = equDocs._id;
+        return await Staff.updateMany(
+            { assignEquipments: equId },
+            { $pull: { assignEquipments: equId } }
+        );
+    } catch (e) {
+        console.error("Error removing equipment from staff:", e);
+        throw e;
+    }
+}
+
 export async function findStaffById(code: string) : Promise<IStaff | null> {
     return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
