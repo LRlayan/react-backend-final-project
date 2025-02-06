@@ -1,11 +1,11 @@
 import {CropModel} from "../models/crop-model";
-import {findCropById, saveCrop, updateCrop} from "../repository/crop-repository";
+import {deleteCrop, findCropById, saveCrop, updateCrop} from "../repository/crop-repository";
 import mongoose from "mongoose";
 import Field from "../schema/field";
 import Log from "../schema/log";
 import Crop, {ICrop, SeasonType} from "../schema/crop";
-import {updateFieldAssignCrop} from "../repository/field-repository";
-import {updateLogAssignCrop} from "../repository/log-repository";
+import {deleteCropInField, updateFieldAssignCrop} from "../repository/field-repository";
+import {deleteCropInLog, updateLogAssignCrop} from "../repository/log-repository";
 
 export async function saveCropService(cropData: CropModel) {
     try {
@@ -69,5 +69,20 @@ export async function updateCropService(cropData: CropModel) {
     } catch (e) {
         console.error("Service layer error: Failed to update crop!", e);
         throw new Error("Failed to update crop, Please try again.");
+    }
+}
+
+export async function deleteCropService(code: string) {
+    try {
+        const excitingCrop = await findCropById(code);
+        if (!excitingCrop) {
+            throw new Error(`Crop-${code} is not found`);
+        }
+        const deleteCropIdsOfField = await deleteCropInField(code);
+        const deleteCropIdsOfLog = await deleteCropInLog(code);
+        return await deleteCrop(code);
+    } catch (e) {
+        console.error("Service layer error: Failed to delete crop!", e);
+        throw new Error("Failed to delete crop, Please try again.");
     }
 }
