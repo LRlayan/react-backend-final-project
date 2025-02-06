@@ -172,6 +172,24 @@ export async function updateFieldsAssignStaff(code: string, fieldData: FieldMode
     }
 }
 
+export async function deleteVehicleInStaff(vehicleCode: string) {
+    try {
+        const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!vehicleDoc) {
+            throw new Error(`Vehicle with code ${vehicleCode} not found`);
+        }
+        const vehicleId = vehicleDoc._id;
+
+        return await Staff.updateMany(
+            { assignVehicles: vehicleId },
+            { $pull: { assignVehicles: vehicleId } }
+        );
+    } catch (e) {
+        console.error("Error removing vehicle from staff:", e);
+        throw e;
+    }
+}
+
 export async function findStaffById(code: string) : Promise<IStaff | null> {
     return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
