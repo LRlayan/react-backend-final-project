@@ -100,6 +100,23 @@ export async function updateFieldsAssignEqu(code: string, fieldData: FieldModel)
     }
 }
 
+export async function deleteStaffInEquipment(code: string) {
+    try {
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Staff with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
+        return Equipment.updateMany(
+            { assignStaffMembers: staffId },
+            { $pull: { assignStaffMembers: staffId } }
+        );
+    } catch (e) {
+        console.error("Error removing staff from equipment:", e);
+        throw e;
+    }
+}
+
 export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
     return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
 }
