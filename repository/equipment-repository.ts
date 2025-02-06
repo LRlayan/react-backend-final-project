@@ -44,6 +44,20 @@ export async function updateEquipment(code: string, updateData: Partial<IEquipme
     }
 }
 
+export async function deleteEquipment(code: string) {
+    try {
+        const result = await Equipment.deleteOne(
+            { code }
+        );
+        return result
+            ? { message: "Equipment delete successfully" }
+            : { message: "Equipment delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete field:", e);
+        throw e;
+    }
+}
+
 export async function updatedEquipmentAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
