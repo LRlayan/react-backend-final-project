@@ -1,6 +1,7 @@
 import express from "express";
-import {saveEquipmentService, updateEquipmentService} from "../service/equipment-service";
+import {deleteEquipmentService, saveEquipmentService, updateEquipmentService} from "../service/equipment-service";
 import {EquipmentModel} from "../models/equipment-model";
+import {findEquipmentByCode} from "../repository/equipment-repository";
 
 const equipmentRoutes = express.Router();
 
@@ -33,8 +34,19 @@ equipmentRoutes.put('/updateEquipment/:code', async (req,res) => {
     }
 });
 
-equipmentRoutes.delete('/deleteEquipment/:equId', async (req,res) => {
-
+equipmentRoutes.delete('/deleteEquipment/:code', async (req,res) => {
+    const code = req.params.code;
+    try {
+        const excitingEquipment = await findEquipmentByCode(code);
+        if (!excitingEquipment) {
+            throw new Error("Please required equipment code");
+        }
+        const result = await deleteEquipmentService(code);
+        res.status(204).send(result);
+    } catch (e) {
+        console.error("Failed to delete equipment!", e);
+        res.status(400).send("Failed to delete equipment. Please try again.");
+    }
 })
 
 equipmentRoutes.get('/getAllEquipment', async (req,res) => {
