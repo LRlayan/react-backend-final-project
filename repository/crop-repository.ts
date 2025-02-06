@@ -103,6 +103,22 @@ export async function updateFieldsAssignCrop(code: string, fieldData: FieldModel
     }
 }
 
+export async function deleteFieldInCrop(code: string) {
+    try {
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!fieldDocs) {
+            throw new Error(`Crop with code ${code} not found`)
+        }
+        const fieldId = fieldDocs._id;
+        return Crop.updateMany(
+            { assignFields: fieldId },
+            { $pull: { assignFields: fieldId } }
+        );
+    } catch (e) {
+        console.error("Error removing field from crop:", e);
+        throw e;
+    }
+}
 export async function findCropById(code: string) : Promise<ICrop | null> {
     return await Crop.findOne({ code }).populate("assignFields").populate("assignLogs").exec();
 }
