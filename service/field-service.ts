@@ -60,7 +60,7 @@ export async function updateFieldService(fieldData: FieldModel) {
         let updatedStaffIds : mongoose.Types.ObjectId[] = [];
         let updatedCropIds : mongoose.Types.ObjectId[] = [];
         let updatedEquipmentIds : mongoose.Types.ObjectId[] = [];
-        if (fieldData.assignLogs && Array.isArray() && fieldData.assignStaffMembers && Array.isArray(fieldData.assignStaffMembers) && fieldData.assignCrops && Array.isArray(fieldData.assignCrops) && fieldData.assignEquipments && Array.isArray(fieldData.assignEquipments)) {
+        if (fieldData.assignLogs && Array.isArray(fieldData.assignLogs) && fieldData.assignStaffMembers && Array.isArray(fieldData.assignStaffMembers) && fieldData.assignCrops && Array.isArray(fieldData.assignCrops) && fieldData.assignEquipments && Array.isArray(fieldData.assignEquipments)) {
             const logDocs = await Log.find({ code: { $in: fieldData.assignLogs }});
             updatedLogIds = logDocs.map((log) => log._id as mongoose.Types.ObjectId);
 
@@ -71,7 +71,7 @@ export async function updateFieldService(fieldData: FieldModel) {
             updatedCropIds = cropDocs.map((crop) => crop._id as mongoose.Types.ObjectId);
 
             const equDocs = await Equipment.find({ code: { $in: fieldData.assignEquipments }});
-            updatedEquipmentIds = equDocs.map((equ) = equ._id as mongoose.Types.ObjectId);
+            updatedEquipmentIds = equDocs.map((equ) => equ._id as mongoose.Types.ObjectId);
         }
 
         const updateData : Partial<IField> = {
