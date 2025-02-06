@@ -121,7 +121,7 @@ export async function deleteFieldInCrop(code: string) {
     try {
         const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!fieldDocs) {
-            throw new Error(`Crop with code ${code} not found`)
+            throw new Error(`Crop with code ${code} not found`);
         }
         const fieldId = fieldDocs._id;
         return Crop.updateMany(
@@ -130,6 +130,23 @@ export async function deleteFieldInCrop(code: string) {
         );
     } catch (e) {
         console.error("Error removing field from crop:", e);
+        throw e;
+    }
+}
+
+export async function deleteLogInCrop(code: string) {
+    try {
+        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!logDocs) {
+            throw new Error(`Log with code ${code} not found`);
+        }
+        const logId = logDocs._id;
+        return Crop.updateMany(
+            { assignLogs: logId },
+            { $pull: { assignLogs: logId } }
+        );
+    } catch (e) {
+        console.error("Error removing log from crop:", e);
         throw e;
     }
 }
