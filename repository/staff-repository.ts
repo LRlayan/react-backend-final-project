@@ -118,7 +118,7 @@ export async function updateStaffAssignEquipments(code: string, equData: Equipme
 
 export async function updateStaffAssignLog(code: string, logData: LogModel) {
     try {
-        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId }>();
         if (!logDocs) {
             throw new Error(`log with code ${code} not found`);
         }
