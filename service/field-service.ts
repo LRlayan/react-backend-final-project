@@ -1,15 +1,15 @@
 import {FieldModel} from "../models/field-model";
-import {findFieldById, saveField, updateField} from "../repository/field-repository";
+import {deleteField, findFieldById, saveField, updateField} from "../repository/field-repository";
 import mongoose from "mongoose";
 import Log from "../schema/log";
 import Staff from "../schema/staff";
 import Crop from "../schema/crop";
 import Equipment from "../schema/equipment";
 import Field, {IField} from "../schema/field";
-import {updateFieldsAssignLog} from "../repository/log-repository";
-import {updateFieldsAssignStaff} from "../repository/staff-repository";
-import {updateFieldsAssignCrop} from "../repository/crop-repository";
-import {updateFieldsAssignEqu} from "../repository/equipment-repository";
+import {deleteFieldInLog, updateFieldsAssignLog} from "../repository/log-repository";
+import {deleteFieldInStaff, updateFieldsAssignStaff} from "../repository/staff-repository";
+import {deleteFieldInCrop, updateFieldsAssignCrop} from "../repository/crop-repository";
+import {deleteFieldInEquipment, updateFieldsAssignEqu} from "../repository/equipment-repository";
 
 export async function saveFieldService(fieldData: FieldModel) {
     try {
@@ -92,5 +92,22 @@ export async function updateFieldService(fieldData: FieldModel) {
         return await updateField(fieldData.code, updateData);
     } catch (e) {
         throw e
+    }
+}
+
+export async function deleteFieldService(code: string) {
+    try {
+        const excitingField = await findFieldById(code);
+        if (!excitingField) {
+            throw new Error(`Field-${code} is not found`);
+        }
+        const deleteFieldIdsOfStaff = await deleteFieldInStaff(code);
+        const deleteFieldIdsOfLog = await deleteFieldInLog(code);
+        const deleteFieldIdsOfCrop = await deleteFieldInCrop(code);
+        const deleteFieldIdsOfEquipment = await deleteFieldInEquipment(code);
+        return await deleteField(code);
+    } catch (e) {
+        console.error("Service layer error: Failed to delete staff member!", e);
+        throw new Error("Failed to delete staff member, Please try again.");
     }
 }
