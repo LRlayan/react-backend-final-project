@@ -130,6 +130,23 @@ export async function updateFieldsAssignLog(code: string, fieldData: FieldModel)
     }
 }
 
+export async function deleteStaffInLog(code: string) {
+    try {
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Staff with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
+        return Log.updateMany(
+            { assignStaff: staffId },
+            { $pull: { assignStaff: staffId } }
+        );
+    } catch (e) {
+        console.error("Error removing staff from log:", e);
+        throw e;
+    }
+}
+
 export async function findLogById(code: string): Promise<ILog | null> {
     return await Log.findOne({ code }).populate("assignFields").populate("assignStaff").populate("assignCrops").exec();
 }
