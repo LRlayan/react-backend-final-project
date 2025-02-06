@@ -228,6 +228,23 @@ export async function deleteLogInField(code: string) {
     }
 }
 
+export async function deleteEquInField(code: string) {
+    try {
+        const equDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!equDocs) {
+            throw new Error(`Equipment with code ${code} not found`);
+        }
+        const equId = equDocs._id;
+        return Field.updateMany(
+            { assignEquipments: equId },
+            { $pull: { assignEquipments: equId } }
+        );
+    } catch (e) {
+        console.error("Error removing equipment from field:", e);
+        throw e;
+    }
+}
+
 export async function findFieldById(code: string): Promise<IField | null> {
-    return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEuipments").exec();
+    return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEquipments").exec();
 }
