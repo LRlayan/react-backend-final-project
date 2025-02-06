@@ -1,13 +1,13 @@
 import {LogModel} from "../models/log-model";
-import {findLogById, saveLog, updateLog} from "../repository/log-repository";
+import {deleteLog, findLogById, saveLog, updateLog} from "../repository/log-repository";
 import mongoose from "mongoose";
 import Field from "../schema/field";
 import Staff from "../schema/staff";
 import Crop from "../schema/crop";
 import Log, {ILog} from "../schema/log";
-import {updateCropAssignLog} from "../repository/crop-repository";
-import {updateStaffAssignLog} from "../repository/staff-repository";
-import {updateFieldAssignLog} from "../repository/field-repository";
+import {deleteLogInCrop, updateCropAssignLog} from "../repository/crop-repository";
+import {deleteLogInStaff, updateStaffAssignLog} from "../repository/staff-repository";
+import {deleteLogInField, updateFieldAssignLog} from "../repository/field-repository";
 
 export async function saveLogService(logData: LogModel) {
     try {
@@ -79,6 +79,23 @@ export async function updateLogService(logData: LogModel) {
         const updatedLogAssignCrop = await updateCropAssignLog(logData.code, logData);
         return await updateLog(logData.code,updatedData);
     } catch (e) {
+        console.error("Service layer error: Failed to update log!", e);
+        throw new Error("Failed to update log, Please try again.");
+    }
+}
 
+export async function deleteLogService(code: string) {
+    try {
+        const excitingLog = await findLogById(code);
+        if (!excitingLog) {
+            throw new Error(`Log-${code} is not found`);
+        }
+        const deleteLogIdsOfField = await deleteLogInField(code);
+        const deleteLogIdsOfStaff = await deleteLogInStaff(code);
+        const deleteLogIdsOfCrop = await deleteLogInCrop(code);
+        return await deleteLog(code);
+    } catch (e) {
+        console.error("Service layer error: Failed to delete log!", e);
+        throw new Error("Failed to delete log, Please try again.");
     }
 }
