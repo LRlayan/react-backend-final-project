@@ -60,6 +60,20 @@ export async function updateStaff(code: string, updateData: Partial<IStaff>) {
     }
 }
 
+export async function deleteStaff(code: string) {
+    try {
+        const result = await Staff.deleteOne(
+            { code }
+        );
+        return result
+            ? { message: "Staff delete successfully" }
+            : { message: "Staff delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete staff:", e);
+        throw e;
+    }
+}
+
 export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData: VehicleModel) {
     try {
         const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -179,7 +193,6 @@ export async function deleteVehicleInStaff(vehicleCode: string) {
             throw new Error(`Vehicle with code ${vehicleCode} not found`);
         }
         const vehicleId = vehicleDoc._id;
-
         return await Staff.updateMany(
             { assignVehicles: vehicleId },
             { $pull: { assignVehicles: vehicleId } }
