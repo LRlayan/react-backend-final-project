@@ -119,6 +119,21 @@ export async function deleteFieldInCrop(code: string) {
         throw e;
     }
 }
+
+export async function deleteCrop(code: string) {
+    try {
+        const result = await Crop.deleteOne(
+            { code }
+        );
+        return result
+            ? { message: "Crop delete successfully" }
+            : { message: "Crop delete unsuccessfully!" };
+    } catch (e) {
+        console.error("Failed to delete crop:", e);
+        throw e;
+    }
+}
+
 export async function findCropById(code: string) : Promise<ICrop | null> {
     return await Crop.findOne({ code }).populate("assignFields").populate("assignLogs").exec();
 }
