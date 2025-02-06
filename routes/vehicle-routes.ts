@@ -1,7 +1,6 @@
 import express from "express";
-import {saveVehicleService, updateVehicleService} from "../service/vehicle-service";
+import {deleteVehicleService, saveVehicleService, updateVehicleService} from "../service/vehicle-service";
 import {VehicleModel} from "../models/vehicle-model";
-import {saveEquipmentService} from "../service/equipment-service";
 
 const vehicleRoutes = express.Router();
 
@@ -38,8 +37,18 @@ vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
     }
 });
 
-vehicleRoutes.delete('/deleteVehicle/:vehicleId', async (req,res) => {
-
+vehicleRoutes.delete('/deleteVehicle/:vehicleCode', async (req,res) => {
+    const vehicleCode = req.params.vehicleCode;
+    try {
+        if (!vehicleCode) {
+            throw new Error("Please required vehicle code!");
+        }
+        const result = await deleteVehicleService(vehicleCode);
+        res.status(204).send(result);
+    } catch (e) {
+        console.error("Failed to delete vehicle!", e);
+        res.status(400).send("Failed to delete vehicle. Please try again.");
+    }
 });
 
 vehicleRoutes.get('/getALlVehicle', async (req,res) => {
