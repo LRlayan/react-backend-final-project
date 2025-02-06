@@ -211,6 +211,23 @@ export async function deleteCropInField(code: string) {
     }
 }
 
+export async function deleteLogInField(code: string) {
+    try {
+        const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!logDocs) {
+            throw new Error(`Crop with code ${code} not found`);
+        }
+        const logId = logDocs._id;
+        return Field.updateMany(
+            { assignLogs: logId },
+            { $pull: { assignLogs: logId } }
+        );
+    } catch (e) {
+        console.error("Error removing log from field:", e);
+        throw e;
+    }
+}
+
 export async function findFieldById(code: string): Promise<IField | null> {
     return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEuipments").exec();
 }
