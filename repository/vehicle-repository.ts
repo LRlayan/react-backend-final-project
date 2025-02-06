@@ -88,3 +88,20 @@ export async function updatedVehicleAssignStaff(code: string, staffData: StaffMo
         throw e;
     }
 }
+
+export async function deleteStaffInVehicle(code: string) {
+    try {
+        const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (!staffDocs) {
+            throw new Error(`Staff with code ${code} not found`);
+        }
+        const staffId = staffDocs._id;
+        return  Vehicle.updateMany(
+            { assignStaff: staffId },
+            { $pull: { assignStaff: staffId } }
+        );
+    } catch (e) {
+        console.error("Error removing staff from vehicle:", e);
+        throw e;
+    }
+}
