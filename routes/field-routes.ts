@@ -1,5 +1,5 @@
 import express from "express";
-import {saveFieldService, updateFieldService} from "../service/field-service";
+import {deleteFieldService, saveFieldService, updateFieldService} from "../service/field-service";
 import {FieldModel} from "../models/field-model";
 import {ImageUploader} from "../util/image-uploader";
 
@@ -39,8 +39,18 @@ fieldRoutes.put('/updateField/:code', upload.single('image'),async (req,res) => 
     }
 });
 
-fieldRoutes.delete('/deleteField/:fieldId', async (req,res) =>{
-
+fieldRoutes.delete('/deleteField/:code', async (req,res) =>{
+    const code = req.params.code;
+    try {
+        if (!code) {
+            throw new Error("Please required field code");
+        }
+        const result = await deleteFieldService(code);
+        res.status(204).send(result);
+    } catch (e) {
+        console.log("Failed to delete field!",e);
+        res.status(400).send("Failed to delete field. Please try again.");
+    }
 });
 
 fieldRoutes.get('/getAllField', async (req,res) => {
