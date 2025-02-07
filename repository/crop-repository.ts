@@ -62,6 +62,15 @@ export async function deleteCrop(code: string) {
     }
 }
 
+export async function getAllCrops() {
+    try {
+        return await Crop.find();
+    } catch (e) {
+        console.error("Failed to get crop data:", e);
+        throw e;
+    }
+}
+
 export async function updateCropAssignLog(code: string, logData: LogModel) {
     try {
         const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
