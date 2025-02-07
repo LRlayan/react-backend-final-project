@@ -1,5 +1,5 @@
 import {LogModel} from "../models/log-model";
-import {deleteLog, findLogById, saveLog, updateLog} from "../repository/log-repository";
+import {deleteLog, findLogById, getAllLogs, saveLog, updateLog} from "../repository/log-repository";
 import mongoose from "mongoose";
 import Field from "../schema/field";
 import Staff from "../schema/staff";
@@ -97,5 +97,14 @@ export async function deleteLogService(code: string) {
     } catch (e) {
         console.error("Service layer error: Failed to delete log!", e);
         throw new Error("Failed to delete log, Please try again.");
+    }
+}
+
+export async function getAllLogService() {
+    try {
+        return await getAllLogs();
+    } catch (e) {
+        console.error("Service layer error: Failed to get log data!", e);
+        throw new Error("Failed to get log data, Please try again.");
     }
 }
