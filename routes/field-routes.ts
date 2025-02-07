@@ -62,7 +62,8 @@ fieldRoutes.get('/getAllField', async (req,res) => {
             res.status(400).send("Field data not found");
         }
     } catch (e) {
-
+        console.log("Failed to get field data!",e);
+        res.status(400).send("Failed to get field data. Please try again.");
     }
 });
 
