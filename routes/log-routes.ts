@@ -1,6 +1,6 @@
 import express from "express";
 import {LogModel} from "../models/log-model";
-import {deleteLogService, saveLogService, updateLogService} from "../service/log-service";
+import {deleteLogService, getAllLogService, saveLogService, updateLogService} from "../service/log-service";
 import {ImageUploader} from "../util/image-uploader";
 
 const logRoutes = express.Router();
@@ -53,7 +53,17 @@ logRoutes.delete('/deleteLog/:code', async (req,res) => {
 });
 
 logRoutes.get('/getALlLog', async (req,res) => {
-
+    try {
+         const result = await getAllLogService();
+         if (result) {
+             res.status(200).json(result);
+         } else {
+             res.status(400).send("Log data not found");
+         }
+    } catch (e) {
+        console.error("Failed to get log data!", e);
+        res.status(400).send("Failed to get log data. Please try again.");
+    }
 });
 
 export default logRoutes;
