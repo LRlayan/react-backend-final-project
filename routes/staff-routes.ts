@@ -1,5 +1,5 @@
 import express from "express";
-import {deleteStaffService, saveStaffService, updateStaffService} from "../service/staff-service";
+import {deleteStaffService, getAllStaffService, saveStaffService, updateStaffService} from "../service/staff-service";
 import {StaffModel} from "../models/staff-model";
 
 const staffRoutes = express.Router();
@@ -50,7 +50,17 @@ staffRoutes.delete('/deleteStaff/:code', async (req,res) => {
 });
 
 staffRoutes.get('/getAllStaff', async (req,res) => {
-
+    try {
+        const result = await getAllStaffService();
+        if (result) {
+            res.status(200).json(result);
+        } else {
+            res.status(400).send("Staff data not found");
+        }
+    } catch (e) {
+        console.error("Failed to get staff data!", e);
+        res.status(400).send("Failed to get staff data. Please try again.");
+    }
 });
 
 export default staffRoutes;
