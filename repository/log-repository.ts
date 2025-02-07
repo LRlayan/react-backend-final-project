@@ -61,6 +61,15 @@ export async function deleteLog(code: string) {
     }
 }
 
+export async function getAllLogs() {
+    try {
+        return await Log.find().populate("assignFields").populate("assignStaff").populate("assignCrops");
+    } catch (e) {
+        console.error("Failed to get log:", e);
+        throw e;
+    }
+}
+
 export async function updatedLogAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
