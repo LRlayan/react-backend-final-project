@@ -1,5 +1,5 @@
 import {FieldModel} from "../models/field-model";
-import {deleteField, findFieldById, saveField, updateField} from "../repository/field-repository";
+import {deleteField, findFieldById, getAllFields, saveField, updateField} from "../repository/field-repository";
 import mongoose from "mongoose";
 import Log from "../schema/log";
 import Staff from "../schema/staff";
@@ -109,5 +109,14 @@ export async function deleteFieldService(code: string) {
     } catch (e) {
         console.error("Service layer error: Failed to delete staff member!", e);
         throw new Error("Failed to delete staff member, Please try again.");
+    }
+}
+
+export async function getAllFieldService() {
+    try {
+        return await getAllFields();
+    } catch (e) {
+        console.error("Service layer error: Failed to get staff member data!", e);
+        throw new Error("Failed to get staff member data, Please try again.");
     }
 }
