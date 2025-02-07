@@ -1,5 +1,5 @@
 import {CropModel} from "../models/crop-model";
-import {deleteCrop, findCropById, saveCrop, updateCrop} from "../repository/crop-repository";
+import {deleteCrop, findCropById, getAllCrops, saveCrop, updateCrop} from "../repository/crop-repository";
 import mongoose from "mongoose";
 import Field from "../schema/field";
 import Log from "../schema/log";
@@ -84,5 +84,14 @@ export async function deleteCropService(code: string) {
     } catch (e) {
         console.error("Service layer error: Failed to delete crop!", e);
         throw new Error("Failed to delete crop, Please try again.");
+    }
+}
+
+export async function getAllCropService() {
+    try {
+        return await getAllCrops();
+    } catch (e) {
+        console.error("Service layer error: Failed to get crop data!", e);
+        throw new Error("Failed to get crop data, Please try again.");
     }
 }
