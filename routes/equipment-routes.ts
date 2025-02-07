@@ -1,5 +1,5 @@
 import express from "express";
-import {deleteEquipmentService, saveEquipmentService, updateEquipmentService} from "../service/equipment-service";
+import {deleteEquipmentService, getAllEquipmentService, saveEquipmentService, updateEquipmentService} from "../service/equipment-service";
 import {EquipmentModel} from "../models/equipment-model";
 import {findEquipmentByCode} from "../repository/equipment-repository";
 
@@ -50,7 +50,17 @@ equipmentRoutes.delete('/deleteEquipment/:code', async (req,res) => {
 })
 
 equipmentRoutes.get('/getAllEquipment', async (req,res) => {
-
+    try {
+        const result = await getAllEquipmentService();
+        if (result) {
+            res.status(201).json(result);
+        } else {
+            res.status(400).send("Equipment data not found");
+        }
+    } catch (e) {
+        console.error("Failed to get equipment data!", e);
+        res.status(400).send("Failed to get equipment data. Please try again.");
+    }
 });
 
 export default equipmentRoutes;
