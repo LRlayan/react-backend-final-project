@@ -64,7 +64,7 @@ export async function deleteCrop(code: string) {
 
 export async function getAllCrops() {
     try {
-        return await Crop.find();
+        return await Crop.find().populate("assignFields").populate("assignLogs");
     } catch (e) {
         console.error("Failed to get crop data:", e);
         throw e;
