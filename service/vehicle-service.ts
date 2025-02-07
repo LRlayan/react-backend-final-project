@@ -1,5 +1,5 @@
 import {VehicleModel} from "../models/vehicle-model";
-import {deleteVehicle, findVehicleByCode, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
+import {deleteVehicle, findVehicleByCode, getAllVehicles, saveVehicle, updateVehicle} from "../repository/vehicle-repository";
 import Vehicle, {IVehicle, StatusType} from "../schema/vehicle";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
@@ -72,6 +72,15 @@ export async function deleteVehicleService(vehicleCode: string) {
         return await deleteVehicle(vehicleCode);
     } catch (e) {
         console.log("Vehicle service: Failed to delete vehicle",e);
+        throw e;
+    }
+}
+
+export async function getAllVehicleService() {
+    try {
+        return await getAllVehicles();
+    } catch (e) {
+        console.log("Vehicle service: Failed to get vehicle data",e);
         throw e;
     }
 }
