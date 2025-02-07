@@ -58,6 +58,15 @@ export async function deleteEquipment(code: string) {
     }
 }
 
+export async function getAllEquipment() {
+    try {
+        return await Equipment.find().populate("assignStaffMembers").populate("assignFields");
+    } catch (e) {
+        console.error("Failed to get equipment data:", e);
+        throw e;
+    }
+}
+
 export async function updatedEquipmentAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
