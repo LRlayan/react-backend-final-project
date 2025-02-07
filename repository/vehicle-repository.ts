@@ -61,6 +61,15 @@ export async function deleteVehicle(vehicleCode: string) {
     }
 }
 
+export async function getAllVehicles() {
+    try {
+        return await Vehicle.find().populate("assignStaff");
+    } catch (e) {
+        console.error("Failed to get vehicle data:", e);
+        throw e;
+    }
+}
+
 export async function updatedVehicleAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
