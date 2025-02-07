@@ -74,6 +74,15 @@ export async function deleteStaff(code: string) {
     }
 }
 
+export async function getAllStaff() {
+    try {
+         return await Staff.find().populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments");
+    } catch (e) {
+        console.error("Failed to get staff data:", e);
+        throw e;
+    }
+}
+
 export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData: VehicleModel) {
     try {
         const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();

@@ -1,4 +1,4 @@
-import {deleteStaff, findStaffById, saveStaff, updateStaff} from "../repository/staff-repository";
+import {deleteStaff, findStaffById, getAllStaff, saveStaff, updateStaff} from "../repository/staff-repository";
 import { StaffModel } from "../models/staff-model";
 import mongoose from "mongoose";
 import Vehicle from "../schema/vehicle";
@@ -131,5 +131,14 @@ export async function deleteStaffService(code: string) {
     } catch (e) {
         console.error("Service layer error: Failed to delete staff member!", e);
         throw new Error("Failed to delete staff member, Please try again.");
+    }
+}
+
+export async function getAllStaffService() {
+    try {
+        return await getAllStaff();
+    } catch (e) {
+        console.error("Service layer error: Failed to get staff member data!", e);
+        throw new Error("Failed to get staff member data, Please try again.");
     }
 }
