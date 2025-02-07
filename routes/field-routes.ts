@@ -1,5 +1,5 @@
 import express from "express";
-import {deleteFieldService, saveFieldService, updateFieldService} from "../service/field-service";
+import {deleteFieldService, getAllFieldService, saveFieldService, updateFieldService} from "../service/field-service";
 import {FieldModel} from "../models/field-model";
 import {ImageUploader} from "../util/image-uploader";
 
@@ -54,7 +54,16 @@ fieldRoutes.delete('/deleteField/:code', async (req,res) =>{
 });
 
 fieldRoutes.get('/getAllField', async (req,res) => {
+    try {
+        const result = await getAllFieldService();
+        if (result) {
+            res.status(201).json(result);
+        } else {
+            res.status(400).send("Field data not found");
+        }
+    } catch (e) {
 
+    }
 });
 
 export default fieldRoutes;
