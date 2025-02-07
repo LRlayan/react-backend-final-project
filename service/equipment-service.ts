@@ -1,5 +1,5 @@
 import {EquipmentModel} from "../models/equipment-model";
-import {deleteEquipment, findEquipmentByCode, saveEquipment, updateEquipment} from "../repository/equipment-repository";
+import {deleteEquipment, findEquipmentByCode, getAllEquipment, saveEquipment, updateEquipment} from "../repository/equipment-repository";
 import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
@@ -83,5 +83,14 @@ export async function deleteEquipmentService(code: string) {
     } catch (e) {
         console.error("Service layer error: Failed to delete equipment!", e);
         throw new Error("Failed to delete equipment, Please try again.");
+    }
+}
+
+export async function getAllEquipmentService() {
+    try {
+        return await getAllEquipment();
+    } catch (e) {
+        console.error("Service layer error: Failed to get equipment data!", e);
+        throw new Error("Failed to get equipment data, Please try again.");
     }
 }
