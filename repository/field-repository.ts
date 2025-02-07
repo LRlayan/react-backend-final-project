@@ -65,6 +65,15 @@ export async function deleteField(code: string) {
     }
 }
 
+export async function getAllFields() {
+    try {
+        return await Field.find().populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEquipments");
+    } catch (e) {
+        console.error("Failed to get field:", e);
+        throw e;
+    }
+}
+
 export async function updateFieldAssignEquipment(code: string, equData: EquipmentModel) {
     try {
         const equDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
