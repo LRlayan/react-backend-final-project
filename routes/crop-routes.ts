@@ -1,6 +1,6 @@
 import express from "express";
 import {CropModel} from "../models/crop-model";
-import {deleteCropService, saveCropService, updateCropService} from "../service/crop-service";
+import {deleteCropService, getAllCropService, saveCropService, updateCropService} from "../service/crop-service";
 import {ImageUploader} from "../util/image-uploader";
 
 const cropRoutes = express.Router();
@@ -54,7 +54,17 @@ cropRoutes.delete('/deleteCrop/:code', async (req,res) => {
 });
 
 cropRoutes.get('/getAllCrop', async (req,res) => {
-
+    try {
+        const result = await getAllCropService();
+        if (result) {
+            res.status(201).json(result);
+        } else {
+            res.status(400).send("Crop data not found");
+        }
+    } catch (e) {
+        console.error("Failed to get crop data!", e);
+        res.status(400).send("Failed to get crop data. Please try again.");
+    }
 })
 
 export default cropRoutes;
