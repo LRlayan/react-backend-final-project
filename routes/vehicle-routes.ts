@@ -1,5 +1,5 @@
 import express from "express";
-import {deleteVehicleService, saveVehicleService, updateVehicleService} from "../service/vehicle-service";
+import {deleteVehicleService, getAllVehicleService, saveVehicleService, updateVehicleService} from "../service/vehicle-service";
 import {VehicleModel} from "../models/vehicle-model";
 
 const vehicleRoutes = express.Router();
@@ -52,7 +52,17 @@ vehicleRoutes.delete('/deleteVehicle/:vehicleCode', async (req,res) => {
 });
 
 vehicleRoutes.get('/getALlVehicle', async (req,res) => {
-
+    try {
+         const result = await getAllVehicleService();
+         if (result) {
+             res.status(200).json(result);
+         } else {
+             res.status(400).send("Vehicle data not found");
+         }
+    } catch (e) {
+        console.error("Failed to get vehicle data!", e);
+        res.status(400).send("Failed to get vehicle data. Please try again.");
+    }
 });
 
 export default vehicleRoutes;
