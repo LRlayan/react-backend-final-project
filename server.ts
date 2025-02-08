@@ -27,11 +27,11 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
     });
 
 
-app.use('api/v1/crop',cropRoutes);
-app.use('api/v1/field',fieldRoutes);
-app.use('api/v1/log',logRoutes);
-app.use('api/v1/staff',staffRoutes);
-app.use('api/v1/equipment',equipmentRoutes);
-app.use('api/v1/vehicle',vehicleRoutes);
+app.use('/api/v1/crop',cropRoutes);
+app.use('/api/v1/field',fieldRoutes);
+app.use('/api/v1/log',logRoutes);
+app.use('/api/v1/staff',staffRoutes);
+app.use('/api/v1/equipment',equipmentRoutes);
+app.use('/api/v1/vehicle',vehicleRoutes);
 
 app.listen(3000, () => console.log("Server start 3000 port"));
