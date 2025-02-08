@@ -1,13 +1,19 @@
 import express from "express";
 import {deleteVehicleService, getAllVehicleService, saveVehicleService, updateVehicleService} from "../service/vehicle-service";
 import {VehicleModel} from "../models/vehicle-model";
+import IdGenerator from "../util/id-generator";
 
 const vehicleRoutes = express.Router();
 
 vehicleRoutes.post('/saveVehicle', async (req, res) => {
     const vehicle = req.body;
     try {
-        const newVehicle = new VehicleModel(vehicle.vehicleCode, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('VEHICLE-');
+        if (newCode === null) {
+            throw new Error("vehicle code is null. Please check the Id Type!");
+        }
+        const newVehicle = new VehicleModel(newCode, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
         if (newVehicle) {
             const result = await saveVehicleService(newVehicle);
             res.status(201).send(result);

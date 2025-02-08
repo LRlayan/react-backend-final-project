@@ -2,6 +2,7 @@ import express from "express";
 import {LogModel} from "../models/log-model";
 import {deleteLogService, getAllLogService, saveLogService, updateLogService} from "../service/log-service";
 import {ImageUploader} from "../util/image-uploader";
+import IdGenerator from "../util/id-generator";
 
 const logRoutes = express.Router();
 const imageUploader = new ImageUploader();
@@ -11,7 +12,12 @@ logRoutes.post('/saveLog', upload.single('image'), async (req,res) =>{
     try {
         const {code, name, logDate, logDetails, assignFields, assignStaff, assignCrops} = req.body;
         const image = req.file? req.file.filename : null;
-        const newLog = new LogModel(code, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('LOG-');
+        if (newCode === null) {
+            throw new Error("Log code is null. Please check the Id Type!");
+        }
+        const newLog = new LogModel(newCode, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
         if (newLog) {
             const result = await saveLogService(newLog);
             res.status(201).send(result);

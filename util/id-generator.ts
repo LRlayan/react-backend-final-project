@@ -14,7 +14,7 @@ class IdGenerator {
                 const cropCodes = getAllCrop.map((crop) => crop.code);
 
                 if (cropCodes.length > 0) {
-                    return await this.codesIncrement(cropCodes);
+                    return await this.codesIncrement(cropCodes,"CROP");
                 }
                 return "CROP-1";
             case "STAFF-":
@@ -22,7 +22,7 @@ class IdGenerator {
                 const staffCodes = getAllStaffs.map((staff) => staff.code);
 
                 if (staffCodes.length > 0) {
-                    return await this.codesIncrement(staffCodes);
+                    return await this.codesIncrement(staffCodes,"STAFF");
                 }
                 return "STAFF-1";
             case "LOG-":
@@ -30,7 +30,7 @@ class IdGenerator {
                 const logCodes = getAllLog.map((log) => log.code);
 
                 if (logCodes.length > 0) {
-                    return await this.codesIncrement(logCodes);
+                    return await this.codesIncrement(logCodes,"LOG");
                 }
                 return "LOG-1";
             case "FIELD-":
@@ -38,7 +38,7 @@ class IdGenerator {
                 const fieldCodes = getAllField.map((field) => field.code);
 
                 if (fieldCodes.length > 0) {
-                    return await this.codesIncrement(fieldCodes);
+                    return await this.codesIncrement(fieldCodes,"FIELD");
                 }
                 return "FIELD-1";
             case "VEHICLE-":
@@ -46,7 +46,7 @@ class IdGenerator {
                 const vehicleCodes = getAllVehicle.map((vehicle) => vehicle.vehicleCode);
 
                 if (vehicleCodes.length > 0) {
-                    return await this.codesIncrement(vehicleCodes);
+                    return await this.codesIncrement(vehicleCodes,"VEHICLE");
                 }
                 return "VEHICLE-1";
             case "EQUIPMENT-":
@@ -54,7 +54,7 @@ class IdGenerator {
                 const equipmentCodes = getAllEquipments.map((equ) => equ.code);
 
                 if (equipmentCodes.length > 0) {
-                    return await this.codesIncrement(equipmentCodes);
+                    return await this.codesIncrement(equipmentCodes,"EQUIPMENT");
                 }
                 return "EQUIPMENT-1";
             default:
@@ -62,11 +62,11 @@ class IdGenerator {
         }
     }
 
-    async codesIncrement(codes: string[]): Promise<string> {
+    async codesIncrement(codes: string[], type: string): Promise<string> {
         const lastElement = codes[codes.length - 1];
         const parts = lastElement.split("-");
         let increment = parseInt(parts[1], 10) + 1;
-        return `CROP-${increment}`;
+        return `${type}-${increment}`;
     }
 }
 

@@ -2,13 +2,19 @@ import express from "express";
 import {deleteEquipmentService, getAllEquipmentService, saveEquipmentService, updateEquipmentService} from "../service/equipment-service";
 import {EquipmentModel} from "../models/equipment-model";
 import {findEquipmentByCode} from "../repository/equipment-repository";
+import IdGenerator from "../util/id-generator";
 
 const equipmentRoutes = express.Router();
 
 equipmentRoutes.post('/saveEquipment', async (req,res) => {
     const equipment = req.body;
     try {
-        const newEquipment = new EquipmentModel(equipment.code, equipment.name, equipment.equType, equipment.status, equipment.count, equipment.assignStaffMembers, equipment.assignFields);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('EQUIPMENT-');
+        if (newCode === null) {
+            throw new Error("Equipment code is null. Please check the Id Type!");
+        }
+        const newEquipment = new EquipmentModel(newCode, equipment.name, equipment.equType, equipment.status, equipment.count, equipment.assignStaffMembers, equipment.assignFields);
         if (newEquipment) {
             const result = await saveEquipmentService(newEquipment);
             res.status(201).send(result);

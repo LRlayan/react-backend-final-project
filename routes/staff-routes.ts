@@ -1,13 +1,19 @@
 import express from "express";
 import {deleteStaffService, getAllStaffService, saveStaffService, updateStaffService} from "../service/staff-service";
 import {StaffModel} from "../models/staff-model";
+import IdGenerator from "../util/id-generator";
 
 const staffRoutes = express.Router();
 
 staffRoutes.post('/saveStaff', async (req,res) => {
     const staff = req.body;
     try {
-        const newStaff = new StaffModel(staff.code, staff.firstName, staff.lastName, staff.joinedDate, staff.designation, staff.gender, staff.dob, staff.addressLine01, staff.addressLine02, staff.addressLine03, staff.addressLine04, staff.addressLine05, staff.mobile, staff.email, staff.role, staff.assignVehicles, staff.assignLogs, staff.assignFields, staff.assignEquipments);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('STAFF-');
+        if (newCode === null) {
+            throw new Error("staff code is null. Please check the Id Type!");
+        }
+        const newStaff = new StaffModel(newCode, staff.firstName, staff.lastName, staff.joinedDate, staff.designation, staff.gender, staff.dob, staff.addressLine01, staff.addressLine02, staff.addressLine03, staff.addressLine04, staff.addressLine05, staff.mobile, staff.email, staff.role, staff.assignVehicles, staff.assignLogs, staff.assignFields, staff.assignEquipments);
         if (newStaff) {
             const result = await saveStaffService(newStaff);
             res.status(201).send(result);

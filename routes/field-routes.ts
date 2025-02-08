@@ -2,6 +2,7 @@ import express from "express";
 import {deleteFieldService, getAllFieldService, saveFieldService, updateFieldService} from "../service/field-service";
 import {FieldModel} from "../models/field-model";
 import {ImageUploader} from "../util/image-uploader";
+import IdGenerator from "../util/id-generator";
 
 const fieldRoutes = express.Router();
 const imageUploader = new ImageUploader();
@@ -12,7 +13,12 @@ fieldRoutes.post('/saveField', upload.single('image'), async (req,res) => {
     try {
         const { code, name, location, extentSize, assignLogs, assignStaffMembers, assignCrops, assignEquipments} = req.body;
         const image = req.file? req.file.filename : null;
-        const newField = new FieldModel(code, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('FIELD-');
+        if (newCode === null) {
+            throw new Error("Field code is null. Please check the Id Type!");
+        }
+        const newField = new FieldModel(newCode, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
         if (newField) {
             const result = await saveFieldService(newField);
             res.status(201).send(result);
