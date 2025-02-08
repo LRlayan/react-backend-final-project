@@ -11,50 +11,50 @@ class IdGenerator {
         switch (type) {
             case "CROP-":
                 const getAllCrop = await getAllCrops();
-                const codes = getAllCrop.map((crop) => crop.code);
+                const cropCodes = getAllCrop.map((crop) => crop.code);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (cropCodes.length > 0) {
+                    return await this.codesIncrement(cropCodes);
                 }
                 return "CROP-1";
             case "STAFF-":
                 const getAllStaffs = await getAllStaff();
-                const codes = getAllStaffs.map((staff) => staff.code);
+                const staffCodes = getAllStaffs.map((staff) => staff.code);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (staffCodes.length > 0) {
+                    return await this.codesIncrement(staffCodes);
                 }
                 return "STAFF-1";
             case "LOG-":
                 const getAllLog = await getAllLogs();
-                const codes = getAllLog.map((log) => log.code);
+                const logCodes = getAllLog.map((log) => log.code);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (logCodes.length > 0) {
+                    return await this.codesIncrement(logCodes);
                 }
                 return "LOG-1";
             case "FIELD-":
                 const getAllField = await getAllFields();
-                const codes = getAllField.map((field) => field.code);
+                const fieldCodes = getAllField.map((field) => field.code);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (fieldCodes.length > 0) {
+                    return await this.codesIncrement(fieldCodes);
                 }
                 return "FIELD-1";
             case "VEHICLE-":
                 const getAllVehicle = await getAllVehicles();
-                const codes = getAllVehicle.map((vehicle) => vehicle.vehicleCode);
+                const vehicleCodes = getAllVehicle.map((vehicle) => vehicle.vehicleCode);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (vehicleCodes.length > 0) {
+                    return await this.codesIncrement(vehicleCodes);
                 }
                 return "VEHICLE-1";
             case "EQUIPMENT-":
                 const getAllEquipments = await getAllEquipment();
-                const codes = getAllEquipments.map((equ) => equ.code);
+                const equipmentCodes = getAllEquipments.map((equ) => equ.code);
 
-                if (codes.length > 0) {
-                    return await this.codesIncrement(codes);
+                if (equipmentCodes.length > 0) {
+                    return await this.codesIncrement(equipmentCodes);
                 }
                 return "EQUIPMENT-1";
             default:
