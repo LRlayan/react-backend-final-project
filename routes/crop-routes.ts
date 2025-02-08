@@ -2,6 +2,7 @@ import express from "express";
 import {CropModel} from "../models/crop-model";
 import {deleteCropService, getAllCropService, saveCropService, updateCropService} from "../service/crop-service";
 import {ImageUploader} from "../util/image-uploader";
+import IdGenerator from "../util/id-generator";
 
 const cropRoutes = express.Router();
 const imageUploader = new ImageUploader();
@@ -9,9 +10,14 @@ const upload = imageUploader.uploader('crop');
 
 cropRoutes.post('/saveCrop', upload.single('image'), async (req,res) => {
     try {
-        const { code, name, scientificName, category, season, assignFields, assignLogs } = req.body;
+        const { name, scientificName, category, season, assignFields, assignLogs } = req.body;
         const image = req.file ? req.file.filename : null;
-        const newCrop = new CropModel(code, name, scientificName, category, season, image, assignFields, assignLogs);
+        const idGenerator = new IdGenerator();
+        const newCode = await idGenerator.generateId('CROP-');
+        if (newCode === null) {
+            throw new Error("Crop code is null. Please check the Id Type!");
+        }
+        const newCrop = new CropModel(newCode, name, scientificName, category, season, image, assignFields, assignLogs);
         if (newCrop) {
             const result = await saveCropService(newCrop);
             res.status(201).send(result);
@@ -65,7 +71,7 @@ cropRoutes.get('/getAllCrop', async (req,res) => {
         console.error("Failed to get crop data!", e);
         res.status(400).send("Failed to get crop data. Please try again.");
     }
-})
+});
 
 export default cropRoutes;
 
