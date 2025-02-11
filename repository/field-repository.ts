@@ -43,7 +43,7 @@ export async function updateField(code: string ,fieldData: Partial<IField>) {
             { new: true }
         );
         return result
-            ? {message:"Field update successfully"}
+            ? result
             : {message:"Field update Unsuccessfully"}
     } catch (e) {
         console.error("Failed to update field:", e);

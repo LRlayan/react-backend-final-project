@@ -36,7 +36,7 @@ export async function updateEquipment(code: string, updateData: Partial<IEquipme
             { new: true }
         );
         return result
-            ? { message: "Equipment update successfully" }
+            ? result
             : { message: "Equipment update unsuccessfully!" };
     } catch (e) {
         console.error("Failed to update equipment:", e);

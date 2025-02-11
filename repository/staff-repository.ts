@@ -52,7 +52,7 @@ export async function updateStaff(code: string, updateData: Partial<IStaff>) {
             { new: true }
         );
         return result
-            ? { message: "Staff update successfully" }
+            ? result
             : { message: "Staff update unsuccessfully!" };
     } catch (e) {
         console.error("Failed to update staff:", e);

@@ -39,7 +39,7 @@ export async function updateLog(code: string, logDate: Partial<ILog>) {
             { new: true }
         );
         return result
-            ? {message:"Log update successfully"}
+            ? result
             : {message:"Log update Unsuccessfully"}
     } catch (e) {
         console.error("Failed to update log:", e);

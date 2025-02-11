@@ -39,7 +39,7 @@ export async function updateVehicle(vehicleCode: string, updateData: Partial<IVe
             { new: true }
         );
         return result
-            ? { message: "Vehicle update successfully" }
+            ? result
             : { message: "Vehicle update unsuccessfully!" };
     } catch (e) {
         console.error("Failed to update vehicle:", e);
