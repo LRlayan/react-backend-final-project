@@ -33,7 +33,7 @@ equipmentRoutes.put('/updateEquipment/:code', async (req,res) => {
     try {
         const updateEquipment = new EquipmentModel(ecuCode, equipment.name, equipment.equType, equipment.status, equipment.count, equipment.assignStaffMembers, equipment.assignFields);
         const result = await updateEquipmentService(updateEquipment);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.error("Failed to update equipment!", e);
         res.status(400).send("Failed to update equipment. Please try again.");
@@ -48,7 +48,7 @@ equipmentRoutes.delete('/deleteEquipment/:code', async (req,res) => {
             throw new Error("Please required equipment code");
         }
         const result = await deleteEquipmentService(code);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.error("Failed to delete equipment!", e);
         res.status(400).send("Failed to delete equipment. Please try again.");

@@ -33,7 +33,7 @@ staffRoutes.put('/updateStaff/:code', async (req,res) => {
         const updateStaffMember = new StaffModel(code,staff.firstName, staff.lastName, staff.joinedDate, staff.designation, staff.gender, staff.dob, staff.addressLine01, staff.addressLine02, staff.addressLine03, staff.addressLine04, staff.addressLine05, staff.mobile, staff.email, staff.role, staff.assignVehicles, staff.assignLogs, staff.assignFields, staff.assignEquipments);
         if (updateStaffMember) {
             const result = await updateStaffService(updateStaffMember);
-            res.status(204).send(result);
+            res.status(200).send(result);
         }
     } catch (e) {
         console.error("Failed to update staff!", e);
@@ -48,7 +48,7 @@ staffRoutes.delete('/deleteStaff/:code', async (req,res) => {
             throw new Error("Please required staff member code!")
         }
         const result = await deleteStaffService(code);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.error("Failed to delete staff!", e);
         res.status(400).send("Failed to delete staff. Please try again.");

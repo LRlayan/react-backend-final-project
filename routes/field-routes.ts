@@ -38,7 +38,7 @@ fieldRoutes.put('/updateField/:code', upload.single('image'),async (req,res) => 
     try {
         const updateField = new FieldModel(code, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
         const result = await updateFieldService(updateField);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.log("Failed to update field!",e);
         res.status(400).send("Failed to update field. Please try again.");
@@ -52,7 +52,7 @@ fieldRoutes.delete('/deleteField/:code', async (req,res) =>{
             throw new Error("Please required field code");
         }
         const result = await deleteFieldService(code);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.log("Failed to delete field!",e);
         res.status(400).send("Failed to delete field. Please try again.");

@@ -33,7 +33,7 @@ vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
         const updateVehicle = new VehicleModel(code, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
         if (updateVehicle) {
             const result = await updateVehicleService(updateVehicle);
-            res.status(204).send(result);
+            res.status(200).send(result);
         } else {
             console.log("Error, Required vehicle data!");
         }
@@ -50,7 +50,7 @@ vehicleRoutes.delete('/deleteVehicle/:vehicleCode', async (req,res) => {
             throw new Error("Please required vehicle code!");
         }
         const result = await deleteVehicleService(vehicleCode);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.error("Failed to delete vehicle!", e);
         res.status(400).send("Failed to delete vehicle. Please try again.");

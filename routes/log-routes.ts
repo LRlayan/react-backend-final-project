@@ -37,7 +37,7 @@ logRoutes.put('/updateLog/:code', upload.single('image'), async (req,res) => {
     try {
         const updateLog = new LogModel(code, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
         const result = await updateLogService(updateLog);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.log("Failed to update log!",e);
         res.status(400).send("Failed to update log. Please try again.");
@@ -51,7 +51,7 @@ logRoutes.delete('/deleteLog/:code', async (req,res) => {
             throw new Error("Please required log code");
         }
         const result = await deleteLogService(code);
-        res.status(204).send(result);
+        res.status(200).send(result);
     } catch (e) {
         console.error("Failed to delete log!", e);
         res.status(400).send("Failed to delete log. Please try again.");
