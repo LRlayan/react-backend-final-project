@@ -23,7 +23,7 @@ export async function saveVehicle(vehicleData: Vehicle) {
         const newVehicle = new Vehicle(vehicleData);
         const result = await newVehicle.save();
         return result
-            ? { message: "Vehicle saved successfully" }
+            ? result
             : { message: "Vehicle saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save vehicle:", e);

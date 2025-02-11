@@ -22,9 +22,7 @@ export async function saveVehicleService(vehicleData: VehicleModel) {
             remark: vehicleData.remark,
             assignStaff : assignStaffIds
         });
-
-        const result = await saveVehicle(newVehicle);
-        return { message: result}
+        return await saveVehicle(newVehicle);
     } catch (e) {
         console.error("Service layer error: Failed to save vehicle!");
         throw new Error("Failed to save vehicle, Please try again.");

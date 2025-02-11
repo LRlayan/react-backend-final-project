@@ -51,8 +51,7 @@ export async function saveStaffService(staffData: StaffModel) {
             assignFields: assignFieldIds,
             assignEquipments: assignEquipmentIds
         });
-        const result = await saveStaff(newStaff);
-        return { message: result };
+        return await saveStaff(newStaff);
     } catch (error) {
         console.error("Service layer error: Failed to save staff!", error);
         throw new Error("Failed to save staff. Please try again.");

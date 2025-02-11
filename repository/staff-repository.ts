@@ -36,7 +36,7 @@ export async function saveStaff(staffData: Staff) {
         const newStaff = new Staff(staffData);
         const result = await newStaff.save();
         return result
-            ? { message: "Staff member saved successfully" }
+            ? result
             : { message: "Staff member saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save staff:", e);
