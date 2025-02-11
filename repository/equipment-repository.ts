@@ -97,7 +97,7 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
 
 export async function updateFieldsAssignEqu(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
         if (!fieldDocs) {
             throw new Error(`Equipment with code ${code} not found`);
         }

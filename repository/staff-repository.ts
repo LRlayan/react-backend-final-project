@@ -169,7 +169,7 @@ export async function updateStaffAssignLog(code: string, logData: LogModel) {
 
 export async function updateFieldsAssignStaff(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
         if (!fieldDocs) {
             throw new Error(`Staff with code ${code} not found`);
         }

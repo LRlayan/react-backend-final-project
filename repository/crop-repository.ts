@@ -100,7 +100,7 @@ export async function updateCropAssignLog(code: string, logData: LogModel) {
 
 export async function updateFieldsAssignCrop(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.find({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
         if (!fieldDocs) {
             throw new Error(`Crop with code ${code} not found`);
         }
