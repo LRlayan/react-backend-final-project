@@ -28,8 +28,7 @@ export async function saveCropService(cropData: CropModel) {
             assignFields: assignFieldIds,
             assignLogs: assignLogIds
         });
-        const result = await saveCrop(newCrop);
-        return { message: result };
+        return await saveCrop(newCrop);
     } catch (e) {
         console.error("Service layer error: Failed to save crops!");
         throw new Error("Failed to save crops. Please try again.");

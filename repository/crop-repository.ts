@@ -21,7 +21,7 @@ export async function saveCrop(cropData: Crop) {
         const newCrop = new Crop(cropData);
         const result = await newCrop.save();
         if (result) {
-            return { message: "Crops Saved Successfully!"};
+            return result;
         } else {
             return { message: "Failed to save crop. Please try again."}
             throw new Error("Failed to save crop. Please try again.");
