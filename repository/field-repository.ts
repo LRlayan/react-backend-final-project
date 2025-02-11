@@ -27,7 +27,7 @@ export async function saveField(fieldData: Field) {
         const newField = new Field(fieldData);
         const result = await newField.save();
         return result
-            ? { message: "Field saved successfully" }
+            ? result
             : { message: "Field saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save field:", e);

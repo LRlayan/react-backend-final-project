@@ -27,8 +27,7 @@ export async function saveEquipmentService(equData: EquipmentModel) {
             assignStaffMembers: assignStaffMembers,
             assignFields: assignFields
         });
-        const result = await saveEquipment(newEquipment);
-        return { message: result};
+        return await saveEquipment(newEquipment);
     } catch (e) {
         console.error("Service layer error: Failed to save equipment!");
         throw new Error("Failed to save equipment. Please try again.");

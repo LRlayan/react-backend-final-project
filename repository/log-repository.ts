@@ -23,7 +23,7 @@ export async function saveLog(logData: Log) {
         const newLog = new Log(logData);
         const result = await newLog.save();
         return result
-            ? { message: "Log saved successfully" }
+            ? result
             : { message: "Log saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save log:", e);

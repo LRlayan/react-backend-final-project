@@ -20,7 +20,7 @@ export async function saveEquipment(equData: Equipment) {
         const newEquipment = new Equipment(equData);
         const result = await newEquipment.save();
         return result
-            ? { message: "Equipment saved successfully" }
+            ? result
             : { message: "Equipment saved unsuccessfully!" };
     } catch (e) {
         console.error("Failed to save equipment:", e);

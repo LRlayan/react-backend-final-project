@@ -34,9 +34,7 @@ export async function saveLogService(logData: LogModel) {
             assignStaff: assignStaffIds,
             assignCrops: assignCropIds
         });
-
-        const result = await saveLog(newLog);
-        return { message: result};
+        return await saveLog(newLog);
     } catch (e) {
         console.error("Service layer error: Failed to save logs!");
         throw new Error("Failed to save logs. Please try again.");

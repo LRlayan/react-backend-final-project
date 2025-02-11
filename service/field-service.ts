@@ -41,8 +41,7 @@ export async function saveFieldService(fieldData: FieldModel) {
             assignCrops: assignCrops,
             assignEquipments: assignEquipments
         });
-        const result = await saveField(newField);
-        return { message: result};
+        return await saveField(newField);
     } catch (e) {
         console.error("Service layer error: Failed to save crops!");
         throw new Error("Failed to save crops. Please try again.");
