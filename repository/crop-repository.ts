@@ -40,7 +40,7 @@ export async function updateCrop(code: string, updateData: Partial<ICrop>) {
             { new: true }
         );
         return result
-            ? {message:"Crop update successfully"}
+            ? result
             : {message:"Crop update Unsuccessfully"}
     }catch (e) {
         console.error("Failed to update crop:", e);
