@@ -12,12 +12,19 @@ cropRoutes.post('/saveCrop', upload.single('image'), async (req,res) => {
     try {
         const { name, scientificName, category, season, assignFields, assignLogs } = req.body;
         const image = req.file ? req.file.filename : null;
+        const parsedAssignFields : string[] = assignFields ? JSON.parse(assignFields) : [];
+        const parsedAssignLogs: string[] = assignLogs ? JSON.parse(assignLogs) : [];
         const idGenerator = new IdGenerator();
         const newCode = await idGenerator.generateId('CROP-');
+
         if (newCode === null) {
             throw new Error("Crop code is null. Please check the Id Type!");
         }
-        const newCrop = new CropModel(newCode, name, scientificName, category, season, image, assignFields, assignLogs);
+
+        const fieldCodes = parsedAssignFields.map((field: any) => field.code);
+        const logCodes = parsedAssignLogs.map((log: any) => log.code);
+
+        const newCrop = new CropModel(newCode, name, scientificName, category, season, image, fieldCodes, logCodes);
         if (newCrop) {
             const result = await saveCropService(newCrop);
             res.status(201).send(result);
