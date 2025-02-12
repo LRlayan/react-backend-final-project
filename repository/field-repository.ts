@@ -257,3 +257,12 @@ export async function deleteEquInField(code: string) {
 export async function findFieldById(code: string): Promise<IField | null> {
     return await Field.findOne( {code}).populate("assignLogs").populate("assignStaffMembers").populate("assignCrops").populate("assignEquipments").exec();
 }
+
+export async function getSelectedFields(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Field.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected fields:", e);
+        throw new Error("Failed to fetch selected fields. Please try again.");
+    }
+}

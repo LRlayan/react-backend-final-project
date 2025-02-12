@@ -4,18 +4,19 @@ import mongoose from "mongoose";
 import Field from "../schema/field";
 import Log from "../schema/log";
 import Crop, {ICrop, SeasonType} from "../schema/crop";
-import {deleteCropInField, updateFieldAssignCrop} from "../repository/field-repository";
+import {deleteCropInField, getSelectedFields, updateFieldAssignCrop} from "../repository/field-repository";
 import {deleteCropInLog, updateLogAssignCrop} from "../repository/log-repository";
 
 export async function saveCropService(cropData: CropModel) {
     try {
-        let assignFieldIds : mongoose.Types.ObjectId[] = [];
-        let assignLogIds : mongoose.Types.ObjectId[] = [];
+        let assignFieldIds: mongoose.Types.ObjectId[] = [];
+        let assignLogIds: mongoose.Types.ObjectId[] = [];
+        let assignFieldNames: string[] = [];
 
-        const fieldDocs = await Field.find( { code: { $in: cropData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
+        const fieldDocs = await Field.find({ code: { $in: cropData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
         assignFieldIds = fieldDocs.map((field) => field._id);
 
-        const logDocs = await Log.find({ code: { $in: cropData.assignLogs }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
+        const logDocs = await Log.find({ code: { $in: cropData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignLogIds = logDocs.map((log) => log._id);
 
         const newCrop = new Crop({
@@ -28,9 +29,19 @@ export async function saveCropService(cropData: CropModel) {
             assignFields: assignFieldIds,
             assignLogs: assignLogIds
         });
-        return await saveCrop(newCrop);
+
+        const result = await saveCrop(newCrop);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignFields: assignFieldNames
+        };
+        return modifiedResult;
     } catch (e) {
-        console.error("Service layer error: Failed to save crops!");
+        console.error("Service layer error: Failed to save crops!", e);
         throw new Error("Failed to save crops. Please try again.");
     }
 }
