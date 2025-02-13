@@ -177,20 +177,30 @@ export async function updateFieldAssignLog(code: string, logData: LogModel) {
         }
         const logId = logDocs._id;
 
-        let fieldCodes : mongoose.Types.ObjectId[] = [];
-        const fieldDocs = await Field.find({ code: { $in: logData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        fieldCodes = fieldDocs.map((field) => field._id);
+        const existingFieldDocs = await Field.find({ assignLogs: logId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingFieldIds = existingFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { assignLog: logId },
-            { $pull: logId }
-        );
+        const updatedFieldDocs = await Field.find({ code: { $in: logData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedFieldIds = updatedFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { _id: { $in: fieldCodes }},
-            { $addToSet: { assignLogs: logId }}
-        );
-        return fieldCodes;
+        const fieldsToRemoveLog = existingFieldIds.filter(id => !updatedFieldIds.includes(id));
+
+        const fieldsToAddLog = updatedFieldIds.filter(id => !existingFieldIds.includes(id));
+
+        if (fieldsToRemoveLog.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToRemoveLog } },
+                { $pull: { assignLogs: logId } }
+            );
+        }
+
+        if (fieldsToAddLog.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToAddLog } },
+                { $addToSet: { assignLogs: logId } }
+            );
+        }
+        return updatedFieldIds;
     } catch (e) {
         console.error("Error updating fields assignLogs:", e);
         throw e;
