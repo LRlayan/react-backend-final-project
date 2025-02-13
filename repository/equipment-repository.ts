@@ -160,3 +160,12 @@ export async function deleteFieldInEquipment(code: string) {
 export async function findEquipmentByCode(code: string): Promise<IEquipment | null> {
     return await Equipment.findOne({ code }).populate("assignStaffMembers").populate("assignFields").exec();
 }
+
+export async function getSelectedEquipments(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Equipment.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected equipment:", e);
+        throw new Error("Failed to fetch selected equipment. Please try again.");
+    }
+}
