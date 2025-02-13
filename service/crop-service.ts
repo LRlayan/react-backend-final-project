@@ -61,6 +61,9 @@ export async function updateCropService(cropData: CropModel) {
 
         let updatedFieldIds : mongoose.Types.ObjectId[] = [];
         let updatedLogIds : mongoose.Types.ObjectId[] = [];
+        let assignFieldNames: string[] = [];
+        let assignLogNames: string[] = [];
+
         if (cropData.assignFields && Array.isArray(cropData.assignFields) || cropData.assignLogs && Array.isArray(cropData.assignLogs)) {
             const fieldDocs = await Field.find({ code: { $in: cropData.assignFields }});
             updatedFieldIds = fieldDocs.map((field) => field._id as mongoose.Types.ObjectId);
@@ -79,9 +82,22 @@ export async function updateCropService(cropData: CropModel) {
             assignLogs: updatedLogIds
         }
 
-        const updatedCropOfField = await updateFieldAssignCrop(cropData.code, cropData);
-        const updatedCropOfLog = await updateLogAssignCrop(cropData.code, cropData);
-        return await updateCrop(cropData.code, updatedData);
+        const result = await updateCrop(cropData.code, updatedData);
+        await updateFieldAssignCrop(cropData.code, cropData);
+        await updateLogAssignCrop(cropData.code, cropData);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignFields: assignFieldNames,
+            assignLogs: assignLogNames
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to update crop!", e);
         throw new Error("Failed to update crop, Please try again.");
