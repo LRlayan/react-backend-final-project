@@ -100,26 +100,37 @@ export async function updateCropAssignLog(code: string, logData: LogModel) {
 
 export async function updateFieldsAssignCrop(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!fieldDocs) {
-            throw new Error(`Crop with code ${code} not found`);
+            throw new Error(`Field with code ${code} not found`);
         }
         const fieldId = fieldDocs._id;
 
-        let cropCodes : mongoose.Types.ObjectId[] = []
-        const cropDocs = await Crop.find({ code: { $in: fieldData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        cropCodes = cropDocs.map((crop) => crop._id);
+        const existingCropDocs = await Crop.find({ assignFields: fieldId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingCropIds = existingCropDocs.map(crop => crop._id);
 
-        await Crop.updateMany(
-            { assignField: fieldId },
-            { $pull: fieldId }
-        );
+        const updatedCropDocs = await Crop.find({ code: { $in: fieldData.assignCrops } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedCropIds = updatedCropDocs.map(crop => crop._id);
 
-        await Crop.updateMany(
-            { _id: { $in: cropCodes } },
-            { $addToSet: { assignFields: fieldId } }
-        );
-        return cropCodes;
+        const cropsToRemoveField = existingCropIds.filter(id => !updatedCropIds.includes(id));
+
+        const cropsToAddField = updatedCropIds.filter(id => !existingCropIds.includes(id));
+
+        if (cropsToRemoveField.length > 0) {
+            await Crop.updateMany(
+                { _id: { $in: cropsToRemoveField } },
+                { $pull: { assignFields: fieldId } }
+            );
+        }
+
+        if (cropsToAddField.length > 0) {
+            await Crop.updateMany(
+                { _id: { $in: cropsToAddField } },
+                { $addToSet: { assignFields: fieldId } }
+            );
+        }
+
+        return updatedCropIds;
     } catch (e) {
         console.error("Error updating crop assignFields:", e);
         throw e;
