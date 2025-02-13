@@ -13,12 +13,23 @@ fieldRoutes.post('/saveField', upload.single('image'), async (req,res) => {
     try {
         const { code, name, location, extentSize, assignLogs, assignStaffMembers, assignCrops, assignEquipments} = req.body;
         const image = req.file? req.file.filename : null;
+        const parsedAssignLogs : string[] = assignLogs ? JSON.parse(assignLogs) : [];
+        const parsedAssignStaff: string[] = assignStaffMembers ? JSON.parse(assignStaffMembers) : [];
+        const parsedAssignCrops: string[] = assignCrops ? JSON.parse(assignCrops) : [];
+        const parsedAssignEquipments: string[] = assignEquipments ? JSON.parse(assignEquipments) : [];
         const idGenerator = new IdGenerator();
         const newCode = await idGenerator.generateId('FIELD-');
+
         if (newCode === null) {
             throw new Error("Field code is null. Please check the Id Type!");
         }
-        const newField = new FieldModel(newCode, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
+
+        const logCodes = parsedAssignLogs.map((log: any) => log.code);
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const cropCodes = parsedAssignCrops.map((crop: any) => crop.code);
+        const equCodes = parsedAssignEquipments.map((equ: any) => equ.code);
+
+        const newField = new FieldModel(newCode, name, location, extentSize, image, logCodes, staffCodes, cropCodes, equCodes);
         if (newField) {
             const result = await saveFieldService(newField);
             res.status(201).send(result);
