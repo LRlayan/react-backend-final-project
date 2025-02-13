@@ -5,24 +5,27 @@ import Field from "../schema/field";
 import Staff from "../schema/staff";
 import Crop from "../schema/crop";
 import Log, {ILog} from "../schema/log";
-import {deleteLogInCrop, updateCropAssignLog} from "../repository/crop-repository";
-import {deleteLogInStaff, updateStaffAssignLog} from "../repository/staff-repository";
-import {deleteLogInField, updateFieldAssignLog} from "../repository/field-repository";
+import {deleteLogInCrop, getSelectedCrops, updateCropAssignLog} from "../repository/crop-repository";
+import {deleteLogInStaff, getSelectedStaff, updateStaffAssignLog} from "../repository/staff-repository";
+import {deleteLogInField, getSelectedFields, updateFieldAssignLog} from "../repository/field-repository";
 
 export async function saveLogService(logData: LogModel) {
     try {
         let assignFieldIda : mongoose.Types.ObjectId[] = [];
         let assignStaffIds : mongoose.Types.ObjectId[] = [];
         let assignCropIds : mongoose.Types.ObjectId[] = [];
+        let assignFieldNames : string[] = [];
+        let assignStaffCodes : string[] = [];
+        let assignCropName : string[] = [];
 
-        const fieldDoc = await Field.find({ code: { $in: logData.assignFields}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        fieldDoc.map((field) => field._id);
+        const fieldDoc = await Field.find({ code: { $in: logData.assignFields}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        assignFieldIda = fieldDoc.map((field) => field._id);
 
-        const staffDocs = await Staff.find({ code: { $in: logData.assignStaff}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        staffDocs.map((staff) => staff._id);
+        const staffDocs = await Staff.find({ code: { $in: logData.assignStaff}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        assignStaffIds = staffDocs.map((staff) => staff._id);
 
-        const cropDocs = await Crop.find( { code: { $in: logData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        cropDocs.map((crop) => crop._id);
+        const cropDocs = await Crop.find( { code: { $in: logData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        assignCropIds = cropDocs.map((crop) => crop._id);
 
         const newLog = new Log({
             code: logData.code,
@@ -34,7 +37,27 @@ export async function saveLogService(logData: LogModel) {
             assignStaff: assignStaffIds,
             assignCrops: assignCropIds
         });
-        return await saveLog(newLog);
+        const result = await saveLog(newLog);
+        await updateFieldAssignLog(logData.code, logData);
+        await updateStaffAssignLog(logData.code, logData);
+        await updateCropAssignLog(logData.code, logData);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map((field) => field.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaff);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const getCrops = await getSelectedCrops(result.assignCrops);
+        assignCropName = getCrops.map((crop) => crop.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignFields: assignFieldNames,
+            assignStaff: assignStaffCodes,
+            assignCrops: assignCropName
+        }
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to save logs!");
         throw new Error("Failed to save logs. Please try again.");
