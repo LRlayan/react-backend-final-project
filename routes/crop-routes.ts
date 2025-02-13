@@ -41,8 +41,12 @@ cropRoutes.put('/updateCrop/:code', upload.single('image'), async (req,res) => {
     const code = req.params.code;
     const { name, scientificName, category, season, assignFields, assignLogs } = req.body;
     const image = req.file ? req.file.filename : null;
+    const parsedAssignFields : string[] = assignFields ? JSON.parse(assignFields) : [];
+    const parsedAssignLogs: string[] = assignLogs ? JSON.parse(assignLogs) : [];
     try {
-        const newCrop = new CropModel(code, name, scientificName, category, season, image, assignFields, assignLogs);
+        const fieldCodes = parsedAssignFields.map((field: any) => field.code);
+        const logCodes = parsedAssignLogs.map((log: any) => log.code);
+        const newCrop = new CropModel(code, name, scientificName, category, season, image, fieldCodes, logCodes);
         const result = await updateCropService(newCrop);
         res.status(200).send(result);
     } catch (e) {
