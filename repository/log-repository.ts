@@ -104,24 +104,37 @@ export async function updateLogAssignCrop(code: string, cropData: CropModel) {
         if (!cropDocs) {
             throw new Error(`Crop with code ${code} not found`);
         }
+
         const cropId = cropDocs._id;
 
-        let logCodes : mongoose.Types.ObjectId[] = [];
-        const logDocs = await Log.find({ code: { $in: cropData.assignLogs }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        logCodes = logDocs.map((log) => log._id);
+        const existingLogDocs = await Log.find({ assignCrops: cropId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingLogIds = existingLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { assignCrops: cropId },
-            { $pull: cropId }
-        );
+        const updatedLogDocs = await Log.find({ code: { $in: cropData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedLogIds = updatedLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { _id: { $in: logCodes }},
-            { $addToSet: { assignCrops: cropId }}
-        );
-        return logCodes;
+        const logsToRemoveCrop = existingLogIds.filter(id => !updatedLogIds.includes(id));
+
+        const logsToAddCrop = updatedLogIds.filter(id => !existingLogIds.includes(id));
+
+        if (logsToRemoveCrop.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToRemoveCrop } },
+                { $pull: { assignCrops: cropId } }
+            );
+        }
+
+        if (logsToAddCrop.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToAddCrop } },
+                { $addToSet: { assignCrops: cropId } }
+            );
+        }
+
+        return updatedLogIds;
     } catch (e) {
-
+        console.error("Error updating log assignCrops:", e);
+        throw e;
     }
 }
 
