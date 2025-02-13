@@ -69,7 +69,7 @@ cropRoutes.get('/getAllCrop', async (req,res) => {
     try {
         const result = await getAllCropService();
         if (result) {
-            res.status(201).json(result);
+            res.status(200).json(result);
         } else {
             res.status(400).send("Crop data not found");
         }
