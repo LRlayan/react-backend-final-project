@@ -266,3 +266,12 @@ export async function deleteEquInStaff(code: string) {
 export async function findStaffById(code: string) : Promise<IStaff | null> {
     return await Staff.findOne({ code }).populate("assignVehicles").populate("assignLogs").populate("assignFields").populate("assignEquipments").exec();
 }
+
+export async function getSelectedStaff(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Staff.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected staff:", e);
+        throw new Error("Failed to fetch selected staff. Please try again.");
+    }
+}
