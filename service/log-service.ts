@@ -74,6 +74,10 @@ export async function updateLogService(logData: LogModel) {
         let updatedFieldIds : mongoose.Types.ObjectId[] = [];
         let updatedStaffIds : mongoose.Types.ObjectId[] = [];
         let updatedCropIds : mongoose.Types.ObjectId[] = [];
+        let assignFieldNames : string[] = [];
+        let assignStaffCodes : string[] = [];
+        let assignCropName : string[] = [];
+
         if (logData.assignFields && Array.isArray(logData.assignFields) && logData.assignStaff && Array.isArray(logData.assignStaff) && logData.assignCrops && Array.isArray(logData.assignCrops)) {
             const fieldDocs = await Field.find({ code: { $in: logData.assignFields }});
             updatedFieldIds = fieldDocs.map((field) => field._id as mongoose.Types.ObjectId);
@@ -95,10 +99,27 @@ export async function updateLogService(logData: LogModel) {
             assignCrops: updatedCropIds
         }
 
-        const updatedLogAssignFields = await updateFieldAssignLog(logData.code, logData);
-        const updatedLogAssignStaff = await updateStaffAssignLog(logData.code, logData);
-        const updatedLogAssignCrop = await updateCropAssignLog(logData.code, logData);
-        return await updateLog(logData.code,updatedData);
+        const result = await updateLog(logData.code,updatedData);
+        await updateFieldAssignLog(logData.code, logData);
+        await updateStaffAssignLog(logData.code, logData);
+        await updateCropAssignLog(logData.code, logData);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map((field) => field.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaff);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const getCrops = await getSelectedCrops(result.assignCrops);
+        assignCropName = getCrops.map((crop) => crop.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignFields: assignFieldNames,
+            assignStaff: assignStaffCodes,
+            assignCrops: assignCropName
+        }
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to update log!", e);
         throw new Error("Failed to update log, Please try again.");
