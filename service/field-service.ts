@@ -6,10 +6,10 @@ import Staff from "../schema/staff";
 import Crop from "../schema/crop";
 import Equipment from "../schema/equipment";
 import Field, {IField} from "../schema/field";
-import {deleteFieldInLog, updateFieldsAssignLog} from "../repository/log-repository";
-import {deleteFieldInStaff, updateFieldsAssignStaff} from "../repository/staff-repository";
-import {deleteFieldInCrop, updateFieldsAssignCrop} from "../repository/crop-repository";
-import {deleteFieldInEquipment, updateFieldsAssignEqu} from "../repository/equipment-repository";
+import {deleteFieldInLog, getSelectedLogs, updateFieldsAssignLog} from "../repository/log-repository";
+import {deleteFieldInStaff, getSelectedStaff, updateFieldsAssignStaff} from "../repository/staff-repository";
+import {deleteFieldInCrop, getSelectedCrops, updateFieldsAssignCrop} from "../repository/crop-repository";
+import {deleteFieldInEquipment, getSelectedEquipments, updateFieldsAssignEqu} from "../repository/equipment-repository";
 
 export async function saveFieldService(fieldData: FieldModel) {
     try {
@@ -17,18 +17,22 @@ export async function saveFieldService(fieldData: FieldModel) {
         let assignStaffMembers : mongoose.Types.ObjectId[] = [];
         let assignCrops : mongoose.Types.ObjectId[] = [];
         let assignEquipments : mongoose.Types.ObjectId[] = [];
+        let assignLogNames: string[] = [];
+        let assignStaffCodes: string[] = [];
+        let assignCropNames: string[] = [];
+        let assignEquipmentNames: string[] = [];
 
         const logDocs = await Log.find({ code: { $in: fieldData.assignLogs }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        logDocs.map((log) => log._id);
+        assignLogIds = logDocs.map((log) => log._id);
 
         const staffDocs = await Staff.find({ code: { $in: fieldData.assignStaffMembers }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        staffDocs.map((staff) => staff._id);
+        assignStaffMembers = staffDocs.map((staff) => staff._id);
 
         const cropDocs = await Crop.find({ code: { $in: fieldData.assignCrops}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        cropDocs.map((crop) => crop._id);
+        assignCrops = cropDocs.map((crop) => crop._id);
 
         const equDocs = await Equipment.find({ code: { $in: fieldData.assignEquipments}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        equDocs.map((equ) => equ._id);
+        assignEquipments = equDocs.map((equ) => equ._id);
 
         const newField = new Field({
             code: fieldData.code,
@@ -41,7 +45,32 @@ export async function saveFieldService(fieldData: FieldModel) {
             assignCrops: assignCrops,
             assignEquipments: assignEquipments
         });
-        return await saveField(newField);
+        const result = await saveField(newField);
+        await updateFieldsAssignLog(fieldData.code, fieldData);
+        await updateFieldsAssignStaff(fieldData.code, fieldData);
+        await updateFieldsAssignCrop(fieldData.code, fieldData);
+        await updateFieldsAssignEqu(fieldData.code, fieldData);
+
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaffMembers);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const getCrops = await getSelectedCrops(result.assignCrops);
+        assignCropNames = getCrops.map((crop) => crop.name);
+
+        const getEquipments = await getSelectedEquipments(result.assignEquipments);
+        assignEquipmentNames = getEquipments.map((equ) => equ.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignLogs: assignLogNames,
+            assignStaffMembers: assignStaffCodes,
+            assignCrops: assignCropNames,
+            assignEquipments: assignEquipmentNames
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to save crops!");
         throw new Error("Failed to save crops. Please try again.");
