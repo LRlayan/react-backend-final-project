@@ -46,8 +46,18 @@ fieldRoutes.put('/updateField/:code', upload.single('image'),async (req,res) => 
     const code = req.params.code;
     const {name, location, extentSize, assignLogs, assignStaffMembers, assignCrops, assignEquipments} = req.body;
     const image = req.file? req.file.filename : null;
+
     try {
-        const updateField = new FieldModel(code, name, location, extentSize, image, assignLogs, assignStaffMembers, assignCrops, assignEquipments);
+        const parsedAssignLogs : string[] = assignLogs ? JSON.parse(assignLogs) : [];
+        const parsedAssignStaff: string[] = assignStaffMembers ? JSON.parse(assignStaffMembers) : [];
+        const parsedAssignCrops: string[] = assignCrops ? JSON.parse(assignCrops) : [];
+        const parsedAssignEquipments: string[] = assignEquipments ? JSON.parse(assignEquipments) : [];
+        const logCodes = parsedAssignLogs.map((log: any) => log.code);
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const cropCodes = parsedAssignCrops.map((crop: any) => crop.code);
+        const equCodes = parsedAssignEquipments.map((equ: any) => equ.code);
+
+        const updateField = new FieldModel(code, name, location, extentSize, image, logCodes, staffCodes, cropCodes, equCodes);
         const result = await updateFieldService(updateField);
         res.status(200).send(result);
     } catch (e) {
