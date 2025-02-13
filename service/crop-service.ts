@@ -14,7 +14,7 @@ export async function saveCropService(cropData: CropModel) {
         let assignFieldNames: string[] = [];
         let assignLogNames: string[] = [];
 
-        const fieldDocs = await Field.find({ code: { $in: cropData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
+        const fieldDocs = await Field.find({ code: { $in: cropData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignFieldIds = fieldDocs.map((field) => field._id);
 
         const logDocs = await Log.find({ code: { $in: cropData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
