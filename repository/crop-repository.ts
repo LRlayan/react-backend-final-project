@@ -163,3 +163,12 @@ export async function deleteLogInCrop(code: string) {
 export async function findCropById(code: string) : Promise<ICrop | null> {
     return await Crop.findOne({ code }).populate("assignFields").populate("assignLogs").exec();
 }
+
+export async function getSelectedCrops(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Crop.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected crops:", e);
+        throw new Error("Failed to fetch selected crops. Please try again.");
+    }
+}
