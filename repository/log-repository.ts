@@ -140,26 +140,37 @@ export async function updateLogAssignCrop(code: string, cropData: CropModel) {
 
 export async function updateFieldsAssignLog(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!fieldDocs) {
-            throw new Error(`Log with code ${code} not found`);
+            throw new Error(`Field with code ${code} not found`);
         }
         const fieldId = fieldDocs._id;
 
-        let logCodes : mongoose.Types.ObjectId[] = []
-        const logDocs = await Log.find({ code: { $in: fieldData.assignLogs}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        logCodes = logDocs.map((log) => log._id);
+        const existingLogDocs = await Log.find({ assignFields: fieldId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingLogIds = existingLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { assignField: fieldId },
-            { $pull: fieldId }
-        );
+        const updatedLogDocs = await Log.find({ code: { $in: fieldData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedLogIds = updatedLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { _id: { $in: logCodes } },
-            { $addToSet: { assignFields: fieldId } }
-        );
-        return logCodes;
+        const logsToRemoveField = existingLogIds.filter(id => !updatedLogIds.includes(id));
+
+        const logsToAddField = updatedLogIds.filter(id => !existingLogIds.includes(id));
+
+        if (logsToRemoveField.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToRemoveField } },
+                { $pull: { assignFields: fieldId } }
+            );
+        }
+
+        if (logsToAddField.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToAddField } },
+                { $addToSet: { assignFields: fieldId } }
+            );
+        }
+
+        return updatedLogIds;
     } catch (e) {
         console.error("Error updating log assignFields:", e);
         throw e;
