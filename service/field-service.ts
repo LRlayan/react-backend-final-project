@@ -88,6 +88,11 @@ export async function updateFieldService(fieldData: FieldModel) {
         let updatedStaffIds : mongoose.Types.ObjectId[] = [];
         let updatedCropIds : mongoose.Types.ObjectId[] = [];
         let updatedEquipmentIds : mongoose.Types.ObjectId[] = [];
+        let assignLogNames: string[] = [];
+        let assignStaffCodes: string[] = [];
+        let assignCropNames: string[] = [];
+        let assignEquipmentNames: string[] = [];
+
         if (fieldData.assignLogs && Array.isArray(fieldData.assignLogs) && fieldData.assignStaffMembers && Array.isArray(fieldData.assignStaffMembers) && fieldData.assignCrops && Array.isArray(fieldData.assignCrops) && fieldData.assignEquipments && Array.isArray(fieldData.assignEquipments)) {
             const logDocs = await Log.find({ code: { $in: fieldData.assignLogs }});
             updatedLogIds = logDocs.map((log) => log._id as mongoose.Types.ObjectId);
@@ -113,11 +118,32 @@ export async function updateFieldService(fieldData: FieldModel) {
             assignEquipments: updatedEquipmentIds
         }
 
-        const updateAssignLogOfLog = await updateFieldsAssignLog(fieldData.code, fieldData);
-        const updateAssignLogOfStaff = await updateFieldsAssignStaff(fieldData.code, fieldData);
-        const updateAssignLogOfCrop = await updateFieldsAssignCrop(fieldData.code, fieldData);
-        const updateAssignLogOfEquipment = await updateFieldsAssignEqu(fieldData.code, fieldData);
-        return await updateField(fieldData.code, updateData);
+        const result = await updateField(fieldData.code, updateData);
+        await updateFieldsAssignLog(fieldData.code, fieldData);
+        await updateFieldsAssignStaff(fieldData.code, fieldData);
+        await updateFieldsAssignCrop(fieldData.code, fieldData);
+        await updateFieldsAssignEqu(fieldData.code, fieldData);
+
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaffMembers);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const getCrops = await getSelectedCrops(result.assignCrops);
+        assignCropNames = getCrops.map((crop) => crop.name);
+
+        const getEquipments = await getSelectedEquipments(result.assignEquipments);
+        assignEquipmentNames = getEquipments.map((equ) => equ.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignLogs: assignLogNames,
+            assignStaffMembers: assignStaffCodes,
+            assignCrops: assignCropNames,
+            assignEquipments: assignEquipmentNames
+        };
+        return modifiedResult;
     } catch (e) {
         throw e
     }
