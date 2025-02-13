@@ -169,26 +169,37 @@ export async function updateStaffAssignLog(code: string, logData: LogModel) {
 
 export async function updateFieldsAssignStaff(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!fieldDocs) {
-            throw new Error(`Staff with code ${code} not found`);
+            throw new Error(`Field with code ${code} not found`);
         }
         const fieldId = fieldDocs._id;
 
-        let staffCodes : mongoose.Types.ObjectId[] = []
-        const staffDocs = await Staff.find({ code: { $in: fieldData.assignStaffMembers}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        staffCodes = staffDocs.map((staff) => staff._id);
+        const existingStaffDocs = await Staff.find({ assignFields: fieldId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingStaffIds = existingStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { assignField: fieldId },
-            { $pull: fieldId }
-        );
+        const updatedStaffDocs = await Staff.find({ code: { $in: fieldData.assignStaffMembers } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedStaffIds = updatedStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { _id: { $in: staffCodes } },
-            { $addToSet: { assignFields: fieldId } }
-        );
-        return staffCodes;
+        const staffToRemoveField = existingStaffIds.filter(id => !updatedStaffIds.includes(id));
+
+        const staffToAddField = updatedStaffIds.filter(id => !existingStaffIds.includes(id));
+
+        if (staffToRemoveField.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToRemoveField } },
+                { $pull: { assignFields: fieldId } }
+            );
+        }
+
+        if (staffToAddField.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToAddField } },
+                { $addToSet: { assignFields: fieldId } }
+            );
+        }
+
+        return updatedStaffIds;
     } catch (e) {
         console.error("Error updating staff assignFields:", e);
         throw e;
