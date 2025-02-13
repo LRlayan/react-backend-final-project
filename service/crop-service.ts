@@ -5,13 +5,14 @@ import Field from "../schema/field";
 import Log from "../schema/log";
 import Crop, {ICrop, SeasonType} from "../schema/crop";
 import {deleteCropInField, getSelectedFields, updateFieldAssignCrop} from "../repository/field-repository";
-import {deleteCropInLog, updateLogAssignCrop} from "../repository/log-repository";
+import {deleteCropInLog, getSelectedLogs, updateLogAssignCrop} from "../repository/log-repository";
 
 export async function saveCropService(cropData: CropModel) {
     try {
         let assignFieldIds: mongoose.Types.ObjectId[] = [];
         let assignLogIds: mongoose.Types.ObjectId[] = [];
         let assignFieldNames: string[] = [];
+        let assignLogNames: string[] = [];
 
         const fieldDocs = await Field.find({ code: { $in: cropData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId, name: string }[]>();
         assignFieldIds = fieldDocs.map((field) => field._id);
@@ -29,15 +30,20 @@ export async function saveCropService(cropData: CropModel) {
             assignFields: assignFieldIds,
             assignLogs: assignLogIds
         });
-
         const result = await saveCrop(newCrop);
+        await updateFieldAssignCrop(cropData.code, cropData);
+        await updateLogAssignCrop(cropData.code, cropData);
 
         const getFields = await getSelectedFields(result.assignFields);
         assignFieldNames = getFields.map(field => field.name);
 
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name)
+
         const modifiedResult = {
             ...result.toObject(),
-            assignFields: assignFieldNames
+            assignFields: assignFieldNames,
+            assignLogs: assignLogNames
         };
         return modifiedResult;
     } catch (e) {
