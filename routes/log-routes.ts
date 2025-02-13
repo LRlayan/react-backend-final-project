@@ -10,14 +10,23 @@ const upload = imageUploader.uploader('log');
 
 logRoutes.post('/saveLog', upload.single('image'), async (req,res) =>{
     try {
-        const {code, name, logDate, logDetails, assignFields, assignStaff, assignCrops} = req.body;
+        const {name, logDate, logDetails, assignFields, assignStaff, assignCrops} = req.body;
         const image = req.file? req.file.filename : null;
+        const parsedAssignFields: string[] = assignFields ? JSON.parse(assignFields): [];
+        const parsedAssignStaff: string[] = assignStaff ? JSON.parse(assignStaff) : [];
+        const parsedAssignCrop: string[] = assignCrops ? JSON.parse(assignCrops) : [];
         const idGenerator = new IdGenerator();
         const newCode = await idGenerator.generateId('LOG-');
+
         if (newCode === null) {
             throw new Error("Log code is null. Please check the Id Type!");
         }
-        const newLog = new LogModel(newCode, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
+
+        const fieldCodes = parsedAssignFields.map((field: any) => field.code);
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const cropCodes = parsedAssignCrop.map((crop: any) => crop.code);
+
+        const newLog = new LogModel(newCode, name, logDate, logDetails, image, fieldCodes, staffCodes, cropCodes);
         if (newLog) {
             const result = await saveLogService(newLog);
             res.status(201).send(result);
