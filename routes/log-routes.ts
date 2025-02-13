@@ -44,7 +44,15 @@ logRoutes.put('/updateLog/:code', upload.single('image'), async (req,res) => {
     const { name, logDate, logDetails, assignFields, assignStaff, assignCrops } = req.body;
     const image = req.file? req.file.filename : null;
     try {
-        const updateLog = new LogModel(code, name, logDate, logDetails, image, assignFields, assignStaff, assignCrops);
+        const parsedAssignFields: string[] = assignFields ? JSON.parse(assignFields): [];
+        const parsedAssignStaff: string[] = assignStaff ? JSON.parse(assignStaff) : [];
+        const parsedAssignCrop: string[] = assignCrops ? JSON.parse(assignCrops) : [];
+
+        const fieldCodes = parsedAssignFields.map((field: any) => field.code);
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const cropCodes = parsedAssignCrop.map((crop: any) => crop.code);
+
+        const updateLog = new LogModel(code, name, logDate, logDetails, image, fieldCodes, staffCodes, cropCodes);
         const result = await updateLogService(updateLog);
         res.status(200).send(result);
     } catch (e) {
