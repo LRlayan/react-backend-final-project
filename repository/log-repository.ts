@@ -207,3 +207,12 @@ export async function deleteCropInLog(code: string) {
 export async function findLogById(code: string): Promise<ILog | null> {
     return await Log.findOne({ code }).populate("assignFields").populate("assignStaff").populate("assignCrops").exec();
 }
+
+export async function getSelectedLogs(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Log.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected logs:", e);
+        throw new Error("Failed to fetch selected logs. Please try again.");
+    }
+}
