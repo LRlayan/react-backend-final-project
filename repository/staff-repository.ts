@@ -143,24 +143,34 @@ export async function updateStaffAssignLog(code: string, logData: LogModel) {
     try {
         const logDocs = await Log.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId }>();
         if (!logDocs) {
-            throw new Error(`log with code ${code} not found`);
+            throw new Error(`Log with code ${code} not found`);
         }
         const logId = logDocs._id;
 
-        let staffCodes : mongoose.Types.ObjectId[] = [];
-        const staffDocs = await Staff.find({ code: { $in: logData.assignStaff }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        staffCodes = staffDocs.map((staff) => staff._id);
+        const existingStaffDocs = await Staff.find({ assignLogs: logId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingStaffIds = existingStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { assignLogs: logId },
-            { $pull: logId }
-        );
+        const updatedStaffDocs = await Staff.find({ code: { $in: logData.assignStaff } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedStaffIds = updatedStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { _id: { $in: staffCodes }},
-            { $addToSet: { assignLogs: logId }}
-        );
-        return staffCodes;
+        const staffToRemoveLog = existingStaffIds.filter(id => !updatedStaffIds.includes(id));
+
+        const staffToAddLog = updatedStaffIds.filter(id => !existingStaffIds.includes(id));
+
+        if (staffToRemoveLog.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToRemoveLog } },
+                { $pull: { assignLogs: logId } }
+            );
+        }
+
+        if (staffToAddLog.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToAddLog } },
+                { $addToSet: { assignLogs: logId } }
+            );
+        }
+        return updatedStaffIds;
     } catch (e) {
         console.error("Error updating staff assignLogs:", e);
         throw e;
