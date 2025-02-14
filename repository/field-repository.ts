@@ -106,24 +106,33 @@ export async function updatedFieldAssignStaff(code: string, staffData: StaffMode
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!staffDocs) {
-            throw new Error(`Field with code ${code} not found`);
+            throw new Error(`Staff with code ${code} not found`);
         }
         const staffId = staffDocs._id;
 
-        let fieldCodes : mongoose.Types.ObjectId[] = [];
-        const fieldDocs = await Field.find({ code : { $in: staffData.assignFields }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        fieldCodes = fieldDocs.map((field) => field._id);
+        const existingFieldDocs = await Field.find({ assignStaffMembers: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingFieldIds = existingFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { assignStaff: staffId },
-            { $pull: staffId }
-        );
+        const updatedFieldDocs = await Field.find({ code: { $in: staffData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedFieldIds = updatedFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { _id: { $in: fieldCodes }},
-            { $addToSet: { assignStaff: staffId }}
-        );
-        return fieldCodes;
+        const fieldsToRemove = existingFieldIds.filter(id => !updatedFieldIds.includes(id));
+        const fieldsToAdd = updatedFieldIds.filter(id => !existingFieldIds.includes(id));
+
+        if (fieldsToRemove.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToRemove } },
+                { $pull: { assignStaffMembers: staffId } }
+            );
+        }
+
+        if (fieldsToAdd.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToAdd } },
+                { $addToSet: { assignStaffMembers: staffId } }
+            );
+        }
+        return updatedFieldIds;
     } catch (e) {
         console.error("Error updating field assignStaff:", e);
         throw e;
