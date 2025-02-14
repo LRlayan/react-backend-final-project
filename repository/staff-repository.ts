@@ -113,26 +113,36 @@ export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData:
 
 export async function updateStaffAssignEquipments(code: string, equData: EquipmentModel) {
     try {
-        const equipmentDocs = await Equipment.findOne( { code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        const equipmentDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!equipmentDocs) {
             throw new Error(`Equipment with code ${code} not found`);
         }
         const equId = equipmentDocs._id;
 
-        let staffCodes : mongoose.Types.ObjectId[] = [];
-        const staffDocs = await Staff.find({code: { $in : equData.assignStaffMembers}}).lean<{ _id: mongoose.Types.ObjectId}[]>();
-        staffCodes = staffDocs.map((staff) => staff._id);
+        const existingStaffDocs = await Staff.find({ assignEquipments: equId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingStaffIds = existingStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { assignEquipments: equId },
-            { $pull: { assignEquipments: equId} }
-        );
+        const updatedStaffDocs = await Staff.find({ code: { $in: equData.assignStaffMembers } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedStaffIds = updatedStaffDocs.map(staff => staff._id);
 
-        await Staff.updateMany(
-            { _id: { $in: staffCodes } },
-            { $addToSet: { assignEquipments: equId } }
-        );
-        return staffCodes;
+        const staffToRemove = existingStaffIds.filter(id => !updatedStaffIds.includes(id));
+        const staffToAdd = updatedStaffIds.filter(id => !existingStaffIds.includes(id));
+
+        if (staffToRemove.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToRemove } },
+                { $pull: { assignEquipments: equId } }
+            );
+        }
+
+        if (staffToAdd.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffToAdd } },
+                { $addToSet: { assignEquipments: equId } }
+            );
+        }
+
+        return updatedStaffIds;
     } catch (e) {
         console.error("Error updating staff assignEquipments:", e);
         throw e;
