@@ -76,26 +76,35 @@ export async function getAllFields() {
 
 export async function updateFieldAssignEquipment(code: string, equData: EquipmentModel) {
     try {
-        const equDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const equDocs = await Equipment.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!equDocs) {
             throw new Error(`Equipment with code ${code} not found`);
         }
         const equId = equDocs._id;
 
-        let fieldCodes: mongoose.Types.ObjectId[] = [];
-        const fieldDocs = await Field.find({ code: { $in: equData.assignFields}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        fieldCodes = fieldDocs.map((field) => field._id);
+        const existingFieldDocs = await Field.find({ assignEquipments: equId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingFieldIds = existingFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { assignEquipments: equId },
-            { $pull: equId }
-        );
+        const updatedFieldDocs = await Field.find({ code: { $in: equData.assignFields } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedFieldIds = updatedFieldDocs.map(field => field._id);
 
-        await Field.updateMany(
-            { _id: { $in: fieldCodes } },
-            { $addToSet: { assignEquipments: equId } }
-        );
-        return fieldCodes;
+        const fieldsToRemove = existingFieldIds.filter(id => !updatedFieldIds.includes(id));
+        const fieldsToAdd = updatedFieldIds.filter(id => !existingFieldIds.includes(id));
+
+        if (fieldsToRemove.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToRemove } },
+                { $pull: { assignEquipments: equId } }
+            );
+        }
+
+        if (fieldsToAdd.length > 0) {
+            await Field.updateMany(
+                { _id: { $in: fieldsToAdd } },
+                { $addToSet: { assignEquipments: equId } }
+            );
+        }
+        return updatedFieldIds;
     } catch (e) {
         console.error("Error updating field assignEquipments:", e);
         throw e;
