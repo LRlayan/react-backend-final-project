@@ -4,8 +4,8 @@ export class EquipmentModel {
     equType:string;
     status:string;
     count:number;
-    assignStaffMembers?: string[];
-    assignFields?: string[];
+    assignStaffMembers: string[];
+    assignFields: string[];
 
     constructor(code: string, name: string, equType: string, status: string, count: number, assignStaffMembers: string[], assignFields: string[]) {
         this.code = code;
