@@ -74,24 +74,33 @@ export async function updatedLogAssignStaff(code: string, staffData: StaffModel)
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!staffDocs) {
-            throw new Error(`Log with code ${code} not found`);
+            throw new Error(`Staff with code ${code} not found`);
         }
         const staffId = staffDocs._id;
 
-        let logCodes : mongoose.Types.ObjectId[] = [];
-        const logDocs = await Log.find({ code: { $in: staffData.assignLogs }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        logCodes = logDocs.map((log) => log._id);
+        const existingLogDocs = await Log.find({ assignStaff: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingLogIds = existingLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { assignStaff: staffId },
-            { $pull: staffId }
-        );
+        const updatedLogDocs = await Log.find({ code: { $in: staffData.assignLogs } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedLogIds = updatedLogDocs.map(log => log._id);
 
-        await Log.updateMany(
-            { _id: { $in: logCodes }},
-            { $addToSet: { assignStaff: staffId }}
-        );
-        return logCodes;
+        const logsToRemove = existingLogIds.filter(id => !updatedLogIds.includes(id));
+        const logsToAdd = updatedLogIds.filter(id => !existingLogIds.includes(id));
+
+        if (logsToRemove.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToRemove } },
+                { $pull: { assignStaff: staffId } }
+            );
+        }
+
+        if (logsToAdd.length > 0) {
+            await Log.updateMany(
+                { _id: { $in: logsToAdd } },
+                { $addToSet: { assignStaff: staffId } }
+            );
+        }
+        return updatedLogIds;
     } catch (e) {
         console.error("Error updating log assignLogs:", e);
         throw e;
