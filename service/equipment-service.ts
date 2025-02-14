@@ -4,13 +4,15 @@ import mongoose from "mongoose";
 import Staff from "../schema/staff";
 import Field from "../schema/field";
 import Equipment, {EquipmentType, IEquipment, StatusType} from "../schema/equipment";
-import {deleteEquInStaff, updateStaffAssignEquipments} from "../repository/staff-repository";
-import {deleteEquInField, updateFieldAssignEquipment} from "../repository/field-repository";
+import {deleteEquInStaff, getSelectedStaff, updateStaffAssignEquipments} from "../repository/staff-repository";
+import {deleteEquInField, getSelectedFields, updateFieldAssignEquipment} from "../repository/field-repository";
 
 export async function saveEquipmentService(equData: EquipmentModel) {
     try {
         let assignStaffMembers : mongoose.Types.ObjectId[] = [];
         let assignFields : mongoose.Types.ObjectId[] = [];
+        let assignStaffCodes: string[] = [];
+        let assignFieldNames: string[] = [];
 
         const staffDocs = await Staff.find({ code: { $in: equData.assignStaffMembers }}).lean<{ _id: mongoose.Types.ObjectId}[]>();
         assignStaffMembers = staffDocs.map((staff) => staff._id);
@@ -27,7 +29,22 @@ export async function saveEquipmentService(equData: EquipmentModel) {
             assignStaffMembers: assignStaffMembers,
             assignFields: assignFields
         });
-        return await saveEquipment(newEquipment);
+        const result = await saveEquipment(newEquipment);
+        await updateStaffAssignEquipments(equData.code, equData);
+        await updateFieldAssignEquipment(equData.code, equData);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaffMembers);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignStaffMembers: assignStaffCodes,
+            assignFields: assignFieldNames
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to save equipment!");
         throw new Error("Failed to save equipment. Please try again.");
