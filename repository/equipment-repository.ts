@@ -71,24 +71,34 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!staffDocs) {
-            throw new Error(`Equipment with code ${code} not found`);
+            throw new Error(`Staff with code ${code} not found`);
         }
         const staffId = staffDocs._id;
 
-        let equCodes : mongoose.Types.ObjectId[] = [];
-        const equDocs = await Equipment.find({ code: { $in: staffData.assignEquipments }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        equCodes = equDocs.map((equ) => equ._id);
+        const existingEquDocs = await Equipment.find({ assignStaff: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingEquIds = existingEquDocs.map(equ => equ._id);
 
-        await Equipment.updateMany(
-            { assignStaff: staffId },
-            { $pull: staffId }
-        );
+        const updatedEquDocs = await Equipment.find({ code: { $in: staffData.assignEquipments } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedEquIds = updatedEquDocs.map(equ => equ._id);
 
-        await Equipment.updateMany(
-            { _id: { $in: equCodes }},
-            { $addToSet: { assignStaff: staffId }}
-        );
-        return equCodes;
+        const equipmentToRemove = existingEquIds.filter(id => !updatedEquIds.includes(id));
+        const equipmentToAdd = updatedEquIds.filter(id => !existingEquIds.includes(id));
+
+        if (equipmentToRemove.length > 0) {
+            await Equipment.updateMany(
+                { _id: { $in: equipmentToRemove } },
+                { $pull: { assignStaff: staffId } }
+            );
+        }
+
+        if (equipmentToAdd.length > 0) {
+            await Equipment.updateMany(
+                { _id: { $in: equipmentToAdd } },
+                { $addToSet: { assignStaff: staffId } }
+            );
+        }
+
+        return updatedEquIds;
     } catch (e) {
         console.error("Error updating equipments assignStaff:", e);
         throw e;
