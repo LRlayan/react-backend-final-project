@@ -56,7 +56,7 @@ const staff = new Schema<IStaff>({
             "LABOUR",
         ],
     },
-    gender: { type: String, required: true, enum: ["Male", "Female"] },
+    gender: { type: String, required: true, enum: ["MALE", "FEMALE"] },
     dob: { type: String, required: true },
     addressLine01: { type: String, required: true },
     addressLine02: { type: String },
