@@ -14,10 +14,6 @@ interface Vehicle {
     assignStaff?: string[];
 }
 
-export async function findVehicleByCode(vehicleCode: string): Promise<IVehicle | null> {
-    return await Vehicle.findOne({ vehicleCode }).populate("assignStaff").exec();
-}
-
 export async function saveVehicle(vehicleData: Vehicle) {
     try {
         const newVehicle = new Vehicle(vehicleData);
@@ -70,6 +66,10 @@ export async function getAllVehicles() {
     }
 }
 
+export async function findVehicleByCode(vehicleCode: string): Promise<IVehicle | null> {
+    return await Vehicle.findOne({ vehicleCode }).populate("assignStaff").exec();
+}
+
 export async function updatedVehicleAssignStaff(code: string, staffData: StaffModel) {
     try {
         const staffDocs = await Staff.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
@@ -112,5 +112,14 @@ export async function deleteStaffInVehicle(code: string) {
     } catch (e) {
         console.error("Error removing staff from vehicle:", e);
         throw e;
+    }
+}
+
+export async function getSelectedVehicles(_ids: mongoose.Types.ObjectId[]) {
+    try {
+        return await Vehicle.find({ _id: { $in: _ids } });
+    } catch (e) {
+        console.error("Error fetching selected vehicles:", e);
+        throw new Error("Failed to fetch selected vehicles. Please try again.");
     }
 }
