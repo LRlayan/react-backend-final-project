@@ -10,11 +10,18 @@ equipmentRoutes.post('/saveEquipment', async (req,res) => {
     const equipment = req.body;
     try {
         const idGenerator = new IdGenerator();
+        const parsedAssignStaff: string[] = equipment.assignStaffMembers? equipment.assignStaffMembers : [];
+        const parsedAssignField: string[] = equipment.assignFields? equipment.assignFields : [];
+
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const fieldCodes = parsedAssignField.map((field: any) => field.code);
+
         const newCode = await idGenerator.generateId('EQUIPMENT-');
         if (newCode === null) {
             throw new Error("Equipment code is null. Please check the Id Type!");
         }
-        const newEquipment = new EquipmentModel(newCode, equipment.name, equipment.equType, equipment.status, equipment.count, equipment.assignStaffMembers, equipment.assignFields);
+
+        const newEquipment = new EquipmentModel(newCode, equipment.name, equipment.equType, equipment.status, equipment.count, staffCodes, fieldCodes);
         if (newEquipment) {
             const result = await saveEquipmentService(newEquipment);
             res.status(201).send(result);
