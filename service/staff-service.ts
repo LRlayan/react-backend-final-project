@@ -6,17 +6,25 @@ import Log from "../schema/log";
 import Field from "../schema/field";
 import Equipment from "../schema/equipment";
 import Staff, {DesignationType, GenderType, IStaff, RoleType} from "../schema/staff";
-import {deleteStaffInVehicle, updatedVehicleAssignStaff} from "../repository/vehicle-repository";
-import {deleteStaffInField, updatedFieldAssignStaff} from "../repository/field-repository";
-import {deleteStaffInEquipment, updatedEquipmentAssignStaff} from "../repository/equipment-repository";
-import {deleteStaffInLog, updatedLogAssignStaff} from "../repository/log-repository";
+import {deleteStaffInVehicle, getSelectedVehicles, updatedVehicleAssignStaff} from "../repository/vehicle-repository";
+import {deleteStaffInField, getSelectedFields, updatedFieldAssignStaff} from "../repository/field-repository";
+import {
+    deleteStaffInEquipment,
+    getSelectedEquipments,
+    updatedEquipmentAssignStaff
+} from "../repository/equipment-repository";
+import {deleteStaffInLog, getSelectedLogs, updatedLogAssignStaff} from "../repository/log-repository";
 
 export async function saveStaffService(staffData: StaffModel) {
     try {
         let assignVehicleIds: mongoose.Types.ObjectId[] = [];
-        let assignFieldIds: mongoose.Types.ObjectId[] = [];
         let assignLogIds: mongoose.Types.ObjectId[] = [];
+        let assignFieldIds: mongoose.Types.ObjectId[] = [];
         let assignEquipmentIds: mongoose.Types.ObjectId[] = [];
+        let assignFieldNames: string[] = [];
+        let assignLogNames: string[] = [];
+        let assignVehicleNames: string[] = [];
+        let assignEquipmentNames: string[] = [];
 
         const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         assignVehicleIds = vehicleDocs.map((vehicle) => vehicle._id);
@@ -51,7 +59,32 @@ export async function saveStaffService(staffData: StaffModel) {
             assignFields: assignFieldIds,
             assignEquipments: assignEquipmentIds
         });
-        return await saveStaff(newStaff);
+        const result = await saveStaff(newStaff);
+        await updatedVehicleAssignStaff(staffData.code,staffData);
+        await updatedLogAssignStaff(staffData.code,staffData);
+        await updatedFieldAssignStaff(staffData.code,staffData);
+        await updatedEquipmentAssignStaff(staffData.code,staffData);
+
+        const getVehicles = await getSelectedVehicles(result.assignVehicles);
+        assignVehicleNames = getVehicles.map((vehicle) => vehicle.vehicleName);
+
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const getEquipments = await getSelectedEquipments(result.assignEquipments);
+        assignEquipmentNames = getEquipments.map((equ) => equ.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignVehicles: assignVehicleNames,
+            assignLogs: assignLogNames,
+            assignFields: assignFieldNames,
+            assignEquipments: assignEquipmentNames
+        };
+        return modifiedResult;
     } catch (error) {
         console.error("Service layer error: Failed to save staff!", error);
         throw new Error("Failed to save staff. Please try again.");
@@ -69,6 +102,11 @@ export async function updateStaffService(staffData: StaffModel) {
         let updatedFieldIds : mongoose.Types.ObjectId[] = [];
         let updatedLogIds : mongoose.Types.ObjectId[] = [];
         let updateEquipmentIds : mongoose.Types.ObjectId[] = [];
+        let assignFieldNames: string[] = [];
+        let assignLogNames: string[] = [];
+        let assignVehicleNames: string[] = [];
+        let assignEquipmentNames: string[] = [];
+
         if (staffData.assignVehicles && Array.isArray(staffData.assignVehicles) || staffData.assignFields && Array.isArray(staffData.assignFields) || staffData.assignLogs && Array.isArray(staffData.assignLogs) || staffData.assignEquipments && Array.isArray(staffData.assignEquipments)) {
             const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles }});
             updatedVehicleIds = vehicleDocs.map((vehicle) => vehicle._id as mongoose.Types.ObjectId);
@@ -104,12 +142,32 @@ export async function updateStaffService(staffData: StaffModel) {
             assignEquipments: updateEquipmentIds
         }
 
-        const updatedStaffAssignVehicle = await updatedVehicleAssignStaff(staffData.code,staffData);
-        const updatedStaffAssignLog = await updatedLogAssignStaff(staffData.code,staffData);
-        const updatedStaffAssignField = await updatedFieldAssignStaff(staffData.code,staffData);
-        const updatedStaffAssignEquipment = await updatedEquipmentAssignStaff(staffData.code,staffData);
         const result = await updateStaff(staffData.code,updateData);
-        return result;
+        await updatedVehicleAssignStaff(staffData.code,staffData);
+        await updatedLogAssignStaff(staffData.code,staffData);
+        await updatedFieldAssignStaff(staffData.code,staffData);
+        await updatedEquipmentAssignStaff(staffData.code,staffData);
+
+        const getVehicles = await getSelectedVehicles(result.assignVehicles);
+        assignVehicleNames = getVehicles.map((vehicle) => vehicle.vehicleName);
+
+        const getLogs = await getSelectedLogs(result.assignLogs);
+        assignLogNames = getLogs.map((log) => log.name);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const getEquipments = await getSelectedEquipments(result.assignEquipments);
+        assignEquipmentNames = getEquipments.map((equ) => equ.name);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignVehicles: assignVehicleNames,
+            assignLogs: assignLogNames,
+            assignFields: assignFieldNames,
+            assignEquipments: assignEquipmentNames
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to update staff member!", e);
         throw new Error("Failed to update staff member, Please try again.");
