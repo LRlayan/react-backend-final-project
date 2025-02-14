@@ -38,7 +38,13 @@ equipmentRoutes.put('/updateEquipment/:code', async (req,res) => {
     const ecuCode = req.params.code;
     const equipment = req.body;
     try {
-        const updateEquipment = new EquipmentModel(ecuCode, equipment.name, equipment.equType, equipment.status, equipment.count, equipment.assignStaffMembers, equipment.assignFields);
+        const parsedAssignStaff: string[] = equipment.assignStaffMembers? equipment.assignStaffMembers : [];
+        const parsedAssignField: string[] = equipment.assignFields? equipment.assignFields : [];
+
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+        const fieldCodes = parsedAssignField.map((field: any) => field.code);
+
+        const updateEquipment = new EquipmentModel(ecuCode, equipment.name, equipment.equType, equipment.status, equipment.count, staffCodes, fieldCodes);
         const result = await updateEquipmentService(updateEquipment);
         res.status(200).send(result);
     } catch (e) {
