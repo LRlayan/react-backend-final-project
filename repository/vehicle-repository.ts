@@ -78,20 +78,29 @@ export async function updatedVehicleAssignStaff(code: string, staffData: StaffMo
         }
         const staffId = staffDocs._id;
 
-        let vehicleCodes : mongoose.Types.ObjectId[] = [];
-        const vehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles }}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        vehicleCodes = vehicleDocs.map((vehicle) => vehicle._id);
+        const existingVehicleDocs = await Vehicle.find({ assignStaff: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingVehicleIds = existingVehicleDocs.map(vehicle => vehicle._id);
 
-        await Vehicle.updateMany(
-            { assignStaff: staffId },
-            { $pull: staffId }
-        );
+        const updatedVehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedVehicleIds = updatedVehicleDocs.map(vehicle => vehicle._id);
 
-        await Vehicle.updateMany(
-            { _id: { $in: vehicleCodes }},
-            { $addToSet: { assignStaff: staffId }}
-        );
-        return vehicleCodes;
+        const vehiclesToRemove = existingVehicleIds.filter(id => !updatedVehicleIds.includes(id));
+        const vehiclesToAdd = updatedVehicleIds.filter(id => !existingVehicleIds.includes(id));
+
+        if (vehiclesToRemove.length > 0) {
+            await Vehicle.updateMany(
+                { _id: { $in: vehiclesToRemove } },
+                { $pull: { assignStaff: staffId } }
+            );
+        }
+
+        if (vehiclesToAdd.length > 0) {
+            await Vehicle.updateMany(
+                { _id: { $in: vehiclesToAdd } },
+                { $addToSet: { assignStaff: staffId } }
+            );
+        }
+        return updatedVehicleIds;
     } catch (e) {
         console.error("Error updating vehicle assignStaff:", e);
         throw e;
