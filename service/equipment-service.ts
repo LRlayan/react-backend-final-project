@@ -60,6 +60,8 @@ export async function updateEquipmentService(equData: EquipmentModel) {
 
         let updatedStaffIds: mongoose.Types.ObjectId[] = [];
         let updatedFieldIds: mongoose.Types.ObjectId[] = [];
+        let assignStaffCodes: string[] = [];
+        let assignFieldNames: string[] = [];
 
         if (equData.assignFields && Array.isArray(equData.assignFields) || equData.assignStaffMembers && Array.isArray(equData.assignStaffMembers)) {
             const fieldsDocs = await Field.find({ code: { $in: equData.assignFields }});
@@ -78,9 +80,22 @@ export async function updateEquipmentService(equData: EquipmentModel) {
             assignFields: updatedFieldIds
         };
 
-        const updatedStaffOfEquipment = await updateStaffAssignEquipments(equData.code, equData);
-        const updatedFieldOfEquipment = await updateFieldAssignEquipment(equData.code, equData);
-        return await updateEquipment(equData.code, updateData);
+        const result = await updateEquipment(equData.code, updateData);
+        await updateStaffAssignEquipments(equData.code, equData);
+        await updateFieldAssignEquipment(equData.code, equData);
+
+        const getFields = await getSelectedFields(result.assignFields);
+        assignFieldNames = getFields.map(field => field.name);
+
+        const getStaff = await getSelectedStaff(result.assignStaffMembers);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignStaffMembers: assignStaffCodes,
+            assignFields: assignFieldNames
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to update equipment!", e);
         throw new Error("Failed to update equipment, Please try again.");
