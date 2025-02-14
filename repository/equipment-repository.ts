@@ -75,7 +75,7 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
         }
         const staffId = staffDocs._id;
 
-        const existingEquDocs = await Equipment.find({ assignStaff: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingEquDocs = await Equipment.find({ assignStaffMembers: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         const existingEquIds = existingEquDocs.map(equ => equ._id);
 
         const updatedEquDocs = await Equipment.find({ code: { $in: staffData.assignEquipments } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
@@ -87,14 +87,14 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
         if (equipmentToRemove.length > 0) {
             await Equipment.updateMany(
                 { _id: { $in: equipmentToRemove } },
-                { $pull: { assignStaff: staffId } }
+                { $pull: { assignStaffMembers: staffId } }
             );
         }
 
         if (equipmentToAdd.length > 0) {
             await Equipment.updateMany(
                 { _id: { $in: equipmentToAdd } },
-                { $addToSet: { assignStaff: staffId } }
+                { $addToSet: { assignStaffMembers: staffId } }
             );
         }
 
@@ -107,26 +107,35 @@ export async function updatedEquipmentAssignStaff(code: string, staffData: Staff
 
 export async function updateFieldsAssignEqu(code: string, fieldData: FieldModel) {
     try {
-        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId} | null>();
+        const fieldDocs = await Field.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!fieldDocs) {
-            throw new Error(`Equipment with code ${code} not found`);
+            throw new Error(`Field with code ${code} not found`);
         }
         const fieldId = fieldDocs._id;
 
-        let equCodes : mongoose.Types.ObjectId[] = []
-        const equDocs = await Equipment.find({ code: { $in: fieldData.assignEquipments}}).lean<{ _id: mongoose.Types.ObjectId }[]>();
-        equCodes = equDocs.map((equ) => equ._id);
+        const existingEquDocs = await Equipment.find({ assignFields: fieldId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const existingEquIds = existingEquDocs.map(equ => equ._id);
 
-        await Equipment.updateMany(
-            { assignField: fieldId },
-            { $pull: fieldId }
-        );
+        const updatedEquDocs = await Equipment.find({ code: { $in: fieldData.assignEquipments } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedEquIds = updatedEquDocs.map(equ => equ._id);
 
-        await Equipment.updateMany(
-            { _id: { $in: equCodes } },
-            { $addToSet: { assignFields: fieldId } }
-        );
-        return equCodes;
+        const equToRemove = existingEquIds.filter(id => !updatedEquIds.includes(id));
+        const equToAdd = updatedEquIds.filter(id => !existingEquIds.includes(id));
+
+        if (equToRemove.length > 0) {
+            await Equipment.updateMany(
+                { _id: { $in: equToRemove } },
+                { $pull: { assignFields: fieldId } }
+            );
+        }
+
+        if (equToAdd.length > 0) {
+            await Equipment.updateMany(
+                { _id: { $in: equToAdd } },
+                { $addToSet: { assignFields: fieldId } }
+            );
+        }
+        return updatedEquIds;
     } catch (e) {
         console.error("Error updating equipment assignFields:", e);
         throw e;
