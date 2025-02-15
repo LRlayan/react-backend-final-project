@@ -48,6 +48,8 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
         }
 
         let updatedStaffIds: mongoose.Types.ObjectId[] = [];
+        let assignStaffCodes: string[] = [];
+
         if (vehicleData.assignStaff && Array.isArray(vehicleData.assignStaff)) {
             const staffDocs = await Staff.find({ code: { $in: vehicleData.assignStaff } });
             updatedStaffIds = staffDocs.map(staff => staff._id as mongoose.Types.ObjectId);
@@ -63,8 +65,17 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
             assignStaff: updatedStaffIds
         };
 
-        const updatedVehiclesOfStaff = await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
-        return await updateVehicle(vehicleData.vehicleCode, updateData);
+        await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
+        const result = await updateVehicle(vehicleData.vehicleCode, updateData);
+
+        const getStaff = await getSelectedStaff(result.assignStaffMembers);
+        assignStaffCodes = getStaff.map((staff) => staff.code);
+
+        const modifiedResult = {
+            ...result.toObject(),
+            assignStaffMembers: assignStaffCodes
+        };
+        return modifiedResult;
     } catch (e) {
         console.error("Service layer error: Failed to update vehicle!", e);
         throw new Error("Failed to update vehicle, Please try again.");
