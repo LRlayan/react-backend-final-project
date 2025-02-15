@@ -83,11 +83,11 @@ export async function getAllStaff() {
     }
 }
 
-export async function updateStaffAssignVehicle(vehicleCode: string, vehicleData: VehicleModel) {
+export async function updateStaffAssignVehicle(code: string, vehicleData: VehicleModel) {
     try {
-        const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        const vehicleDoc = await Vehicle.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!vehicleDoc) {
-            throw new Error(`Vehicle with code ${vehicleCode} not found`);
+            throw new Error(`Vehicle with code ${code} not found`);
         }
         const vehicleId = vehicleDoc._id;
 
@@ -235,11 +235,11 @@ export async function updateFieldsAssignStaff(code: string, fieldData: FieldMode
     }
 }
 
-export async function deleteVehicleInStaff(vehicleCode: string) {
+export async function deleteVehicleInStaff(code: string) {
     try {
-        const vehicleDoc = await Vehicle.findOne({ vehicleCode }).lean<{ _id: mongoose.Types.ObjectId } | null>();
+        const vehicleDoc = await Vehicle.findOne({ code }).lean<{ _id: mongoose.Types.ObjectId } | null>();
         if (!vehicleDoc) {
-            throw new Error(`Vehicle with code ${vehicleCode} not found`);
+            throw new Error(`Vehicle with code ${code} not found`);
         }
         const vehicleId = vehicleDoc._id;
         return await Staff.updateMany(
