@@ -11,8 +11,8 @@ interface Equipment {
     equType: string;
     status: string;
     count: number;
-    assignStaffMembers?: string[];
-    assignFields?: string[];
+    assignStaffMembers: string[];
+    assignFields: string[];
 }
 
 export async function saveEquipment(equData: Equipment) {
