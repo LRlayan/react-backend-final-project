@@ -1,5 +1,5 @@
 export class VehicleModel {
-    vehicleCode: string;
+    code: string;
     licensePlateNumber: string;
     vehicleName: string;
     category: string;
@@ -9,7 +9,7 @@ export class VehicleModel {
     assignStaff?: string[];
 
     constructor(vehicleCode: string, licensePlateNumber: string, vehicleName: string, category: string, fuelType: string, status: string, remark: string, assignStaff: string[]) {
-        this.vehicleCode = vehicleCode;
+        this.code = vehicleCode;
         this.licensePlateNumber = licensePlateNumber;
         this.vehicleName = vehicleName;
         this.category = category;

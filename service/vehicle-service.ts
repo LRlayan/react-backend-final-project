@@ -14,7 +14,7 @@ export async function saveVehicleService(vehicleData: VehicleModel) {
         assignStaffIds = staffDocs.map((staff) => staff._id as mongoose.Types.ObjectId);
 
         const newVehicle = new Vehicle({
-            vehicleCode: vehicleData.vehicleCode,
+            code: vehicleData.code,
             licensePlateNumber: vehicleData.licensePlateNumber,
             vehicleName: vehicleData.vehicleName,
             category: vehicleData.category,
@@ -24,7 +24,7 @@ export async function saveVehicleService(vehicleData: VehicleModel) {
             assignStaff : assignStaffIds
         });
         const result = await saveVehicle(newVehicle);
-        await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
+        await updateStaffAssignVehicle(vehicleData.code,vehicleData);
 
         const getStaff = await getSelectedStaff(result.assignStaffMembers);
         assignStaffCodes = getStaff.map((staff) => staff.code);
@@ -42,7 +42,7 @@ export async function saveVehicleService(vehicleData: VehicleModel) {
 
 export async function updateVehicleService(vehicleData: VehicleModel) {
     try {
-        const existingVehicle = await findVehicleByCode(vehicleData.vehicleCode);
+        const existingVehicle = await findVehicleByCode(vehicleData.code);
         if (!existingVehicle) {
             throw new Error("Vehicle not found!");
         }
@@ -65,8 +65,8 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
             assignStaff: updatedStaffIds
         };
 
-        await updateStaffAssignVehicle(vehicleData.vehicleCode,vehicleData);
-        const result = await updateVehicle(vehicleData.vehicleCode, updateData);
+        const result = await updateVehicle(vehicleData.code, updateData);
+        await updateStaffAssignVehicle(vehicleData.code,vehicleData);
 
         const getStaff = await getSelectedStaff(result.assignStaffMembers);
         assignStaffCodes = getStaff.map((staff) => staff.code);
@@ -82,14 +82,14 @@ export async function updateVehicleService(vehicleData: VehicleModel) {
     }
 }
 
-export async function deleteVehicleService(vehicleCode: string) {
+export async function deleteVehicleService(code: string) {
     try {
-        const excitingVehicle = await findVehicleByCode(vehicleCode);
+        const excitingVehicle = await findVehicleByCode(code);
         if (!excitingVehicle) {
             throw new Error("Vehicle is not found");
         }
-        const deleteVehicleIdsOfStaff = await deleteVehicleInStaff(vehicleCode);
-        return await deleteVehicle(vehicleCode);
+        await deleteVehicleInStaff(code);
+        return await deleteVehicle(code);
     } catch (e) {
         console.log("Vehicle service: Failed to delete vehicle",e);
         throw e;

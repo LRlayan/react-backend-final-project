@@ -30,8 +30,8 @@ vehicleRoutes.post('/saveVehicle', async (req, res) => {
     }
 });
 
-vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
-    const code = req.params.vehicleCode;
+vehicleRoutes.put('/updateVehicle/:code', async (req,res) => {
+    const code = req.params.code;
     const vehicle = req.body;
     try {
         const parsedAssignStaff: string[] = vehicle.assignStaff? vehicle.assignStaff : [];
@@ -50,8 +50,8 @@ vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
     }
 });
 
-vehicleRoutes.delete('/deleteVehicle/:vehicleCode', async (req,res) => {
-    const vehicleCode = req.params.vehicleCode;
+vehicleRoutes.delete('/deleteVehicle/:code', async (req,res) => {
+    const vehicleCode = req.params.code;
     try {
         if (!vehicleCode) {
             throw new Error("Please required vehicle code!");

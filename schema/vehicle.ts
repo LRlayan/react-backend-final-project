@@ -3,7 +3,7 @@ import mongoose, {Document, Schema} from 'mongoose';
 export type StatusType = 'Available' | 'Unavailable'
 
 export interface IVehicle extends Document {
-    vehicleCode: string;
+    code: string;
     licensePlateNumber: string;
     vehicleName: string;
     category: string;
@@ -14,7 +14,7 @@ export interface IVehicle extends Document {
 }
 
 const vehicle = new Schema<IVehicle>({
-    vehicleCode: { type: String, required: true, unique: true},
+    code: { type: String, required: true, unique: true},
     licensePlateNumber: { type: String, required: true, unique: true},
     vehicleName: { type: String, required: true},
     category: { type: String, required: true},

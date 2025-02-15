@@ -4,7 +4,7 @@ import Staff from "../schema/staff";
 import mongoose from "mongoose";
 
 interface Vehicle {
-    vehicleCode: string;
+    code: string;
     licensePlateNumber: string;
     vehicleName: string;
     category: string;
@@ -27,10 +27,10 @@ export async function saveVehicle(vehicleData: Vehicle) {
     }
 }
 
-export async function updateVehicle(vehicleCode: string, updateData: Partial<IVehicle>) {
+export async function updateVehicle(code: string, updateData: Partial<IVehicle>) {
     try {
         const result = await Vehicle.findOneAndUpdate(
-            { vehicleCode },
+            { code },
             { $set: updateData },
             { new: true }
         );
@@ -43,10 +43,10 @@ export async function updateVehicle(vehicleCode: string, updateData: Partial<IVe
     }
 }
 
-export async function deleteVehicle(vehicleCode: string) {
+export async function deleteVehicle(code: string) {
     try {
         const result = await Vehicle.deleteOne(
-            {vehicleCode}
+            {code}
         );
         return result
             ? { message: "Vehicle delete successfully" }
@@ -66,8 +66,8 @@ export async function getAllVehicles() {
     }
 }
 
-export async function findVehicleByCode(vehicleCode: string): Promise<IVehicle | null> {
-    return await Vehicle.findOne({ vehicleCode }).populate("assignStaff").exec();
+export async function findVehicleByCode(code: string): Promise<IVehicle | null> {
+    return await Vehicle.findOne({ code }).populate("assignStaff").exec();
 }
 
 export async function updatedVehicleAssignStaff(code: string, staffData: StaffModel) {
@@ -81,7 +81,7 @@ export async function updatedVehicleAssignStaff(code: string, staffData: StaffMo
         const existingVehicleDocs = await Vehicle.find({ assignStaff: staffId }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         const existingVehicleIds = existingVehicleDocs.map(vehicle => vehicle._id);
 
-        const updatedVehicleDocs = await Vehicle.find({ vehicleCode: { $in: staffData.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
+        const updatedVehicleDocs = await Vehicle.find({ code: { $in: staffData.assignVehicles } }).lean<{ _id: mongoose.Types.ObjectId }[]>();
         const updatedVehicleIds = updatedVehicleDocs.map(vehicle => vehicle._id);
 
         const vehiclesToRemove = existingVehicleIds.filter(id => !updatedVehicleIds.includes(id));
