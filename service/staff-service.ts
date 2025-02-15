@@ -8,11 +8,7 @@ import Equipment from "../schema/equipment";
 import Staff, {DesignationType, GenderType, IStaff, RoleType} from "../schema/staff";
 import {deleteStaffInVehicle, getSelectedVehicles, updatedVehicleAssignStaff} from "../repository/vehicle-repository";
 import {deleteStaffInField, getSelectedFields, updatedFieldAssignStaff} from "../repository/field-repository";
-import {
-    deleteStaffInEquipment,
-    getSelectedEquipments,
-    updatedEquipmentAssignStaff
-} from "../repository/equipment-repository";
+import {deleteStaffInEquipment, getSelectedEquipments, updatedEquipmentAssignStaff} from "../repository/equipment-repository";
 import {deleteStaffInLog, getSelectedLogs, updatedLogAssignStaff} from "../repository/log-repository";
 
 export async function saveStaffService(staffData: StaffModel) {
