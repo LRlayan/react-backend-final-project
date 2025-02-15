@@ -30,10 +30,10 @@ export interface IStaff extends Document{
     mobile: string;
     email: string;
     role: RoleType;
-    assignVehicles?: mongoose.Types.ObjectId[];
-    assignLogs?: mongoose.Types.ObjectId[];
-    assignFields?: mongoose.Types.ObjectId[];
-    assignEquipments?: mongoose.Types.ObjectId[];
+    assignVehicles: mongoose.Types.ObjectId[];
+    assignLogs: mongoose.Types.ObjectId[];
+    assignFields: mongoose.Types.ObjectId[];
+    assignEquipments: mongoose.Types.ObjectId[];
 }
 
 const staff = new Schema<IStaff>({
@@ -50,6 +50,7 @@ const staff = new Schema<IStaff>({
             "OFFICE ASSISTANT",
             "SENIOR AGRONOMIST",
             "AGRONOMIST",
+            "SOIL SCIENTIST",
             "SENIOR TECHNICIAN",
             "TECHNICIAN",
             "SUPERVISOR",
@@ -65,7 +66,7 @@ const staff = new Schema<IStaff>({
     addressLine05: { type: String },
     mobile: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    role: { type: String, required: true, enum: ["ADMINISTRATIVE", "MANAGER", "SCIENTIFIC", "OTHER"] },
+    role: { type: String, required: true, enum: ["ADMINISTRATIVE", "MANAGER", "SCIENTIST", "OTHER"] },
     assignVehicles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" }],
     assignLogs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Log" }],
     assignFields: [{ type: mongoose.Schema.Types.ObjectId, ref: "Field" }],
