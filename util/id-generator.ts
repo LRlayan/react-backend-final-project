@@ -43,7 +43,7 @@ class IdGenerator {
                 return "FIELD-1";
             case "VEHICLE-":
                 const getAllVehicle = await getAllVehicles();
-                const vehicleCodes = getAllVehicle.map((vehicle) => vehicle.vehicleCode);
+                const vehicleCodes = getAllVehicle.map((vehicle) => vehicle.code);
 
                 if (vehicleCodes.length > 0) {
                     return await this.codesIncrement(vehicleCodes,"VEHICLE");
