@@ -9,11 +9,15 @@ vehicleRoutes.post('/saveVehicle', async (req, res) => {
     const vehicle = req.body;
     try {
         const idGenerator = new IdGenerator();
+        const parsedAssignStaff: string[] = vehicle.assignStaff? vehicle.assignStaff : [];
+
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+;
         const newCode = await idGenerator.generateId('VEHICLE-');
         if (newCode === null) {
             throw new Error("vehicle code is null. Please check the Id Type!");
         }
-        const newVehicle = new VehicleModel(newCode, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
+        const newVehicle = new VehicleModel(newCode, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, staffCodes);
         if (newVehicle) {
             const result = await saveVehicleService(newVehicle);
             res.status(201).send(result);
