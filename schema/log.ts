@@ -6,9 +6,9 @@ export interface ILog extends Document {
     logDate: string;
     logDetails: string;
     image: string | null;
-    assignFields?: mongoose.Types.ObjectId[];
-    assignStaff?: mongoose.Types.ObjectId[];
-    assignCrops?: mongoose.Types.ObjectId[];
+    assignFields: mongoose.Types.ObjectId[];
+    assignStaff: mongoose.Types.ObjectId[];
+    assignCrops: mongoose.Types.ObjectId[];
 }
 
 const log = new Schema<ILog>({
