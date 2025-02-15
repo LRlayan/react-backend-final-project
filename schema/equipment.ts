@@ -16,7 +16,7 @@ export interface IEquipment {
 const equipment = new Schema<IEquipment>({
     code: { type: String, required: true, unique: true},
     name: { type: String, required: true},
-    equType: { type: String, required: true, enum: ["Hand Tools", "Irrigation EquipmentModel", "Power Tools and Machinery", "Ploughing EquipmentModel", "Weeding and Pest Control EquipmentModel", "Harvesting EquipmentModel", "Post-Harvest EquipmentModel", "Monitoring and Measuring Tools", "Protective EquipmentModel"]},
+    equType: { type: String, required: true, enum: ["Hand Tools", "Irrigation Equipment", "Power Tools and Machinery", "Ploughing EquipmentModel", "Weeding and Pest Control EquipmentModel", "Harvesting EquipmentModel", "Post-Harvest EquipmentModel", "Monitoring and Measuring Tools", "Protective EquipmentModel"]},
     status: { type: String, required: true, enum: ["Available", "Unavailable"]},
     count: { type: Number, required: true},
     assignStaffMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Staff"}],
