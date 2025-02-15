@@ -16,9 +16,9 @@ export class StaffModel {
     mobile: string;
     email: string;
     role: string;
-    assignVehicles?: string[];
-    assignLogs?: string[];
-    assignFields?: string[];
+    assignVehicles: string[];
+    assignLogs: string[];
+    assignFields: string[];
     assignEquipments?: string[];
 
     constructor(code: string, firstName: string, lastName: string, joinedDate: string, designation: string, gender: string, dob: string, addressLine01: string, addressLine02: string, addressLine03: string, addressLine04: string, addressLine05: string, mobile: string, email: string, role: string, assignVehicles: string[], assignLogs: string[], assignFields: string[], assignEquipments: string[]) {
