@@ -34,7 +34,10 @@ vehicleRoutes.put('/updateVehicle/:vehicleCode', async (req,res) => {
     const code = req.params.vehicleCode;
     const vehicle = req.body;
     try {
-        const updateVehicle = new VehicleModel(code, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, vehicle.assignStaff);
+        const parsedAssignStaff: string[] = vehicle.assignStaff? vehicle.assignStaff : [];
+        const staffCodes = parsedAssignStaff.map((staff: any) => staff.code);
+
+        const updateVehicle = new VehicleModel(code, vehicle.licensePlateNumber, vehicle.vehicleName, vehicle.category, vehicle.fuelType, vehicle.status, vehicle.remark, staffCodes);
         if (updateVehicle) {
             const result = await updateVehicleService(updateVehicle);
             res.status(200).send(result);
