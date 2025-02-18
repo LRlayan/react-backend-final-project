@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
+import {verifyUserCredentials} from "../repository/user-repository"
+import User from "../schema/user";
 
 dotenv.config();
 const router = express.Router();
@@ -12,7 +14,7 @@ router.post("/login", async (req,res) => {
     const user: User = {username, password};
 
     try {
-        const isVerified = verifyUserCredential(user);
+        const isVerified = verifyUserCredentials(user);
 
         if (isVerified) {
             const token = jwt.sign({ username }, process.env.SECRET_KEY as Sceret, {expiresIn: "1m"});
