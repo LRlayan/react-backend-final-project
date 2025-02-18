@@ -6,19 +6,22 @@ import equipmentRoutes from "./routes/equipment-routes";
 import cropRoutes from "./routes/crop-routes";
 import fieldRoutes from "./routes/field-routes";
 import logRoutes from "./routes/log-routes";
+import dotenv from "dotenv";
 
 const cors = require('cors');
 const app = express();
+dotenv.config();
 
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:5173",
-    method: ['GET','POST','PUT','PATCH','DELETE'],
-    allowedHeaders: ['Content-Type','Authorization']
+    methods: ['GET','POST','PUT','PATCH','DELETE'],
+    allowedHeaders: ['Content-Type','Authorization'],
+    credentials: true,
 }));
 app.use('/uploads', express.static('uploads'));
 
-mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
+mongoose.connect(process.env.DATABASE_URL as string)
     .then(() => {
         console.log("Connected to MongoDB");
     })
