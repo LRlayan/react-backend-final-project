@@ -42,3 +42,20 @@ router.post("/refresh-token", async (req,res) => {
         res.status(401).json(err);
     }
 });
+
+export function authenticationToken(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(' ')[1];
+
+    console.log(token);
+    if (!token)res.status(401).send('No Token provided');
+
+    try {
+        const payload = jwt.verify(token as string, process.env.SECRET_KEY as Secret) as {username: string, iat: number};
+        console.log("payload username : " ,payload.username);
+        req.body.username = payload.username;
+        next();
+    } catch (e) {
+        res.status(401).send(e);
+    }
+}
