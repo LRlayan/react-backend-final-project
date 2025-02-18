@@ -1,10 +1,23 @@
 import dotenv from "dotenv";
 import express from "express";
-import {verifyUserCredentials} from "../repository/user-repository"
+import {saveUser, verifyUserCredentials} from "../repository/user-repository"
 import User from "../schema/user";
 
 dotenv.config();
 const router = express.Router();
+
+router.post("/register", async (req, res) => {
+    console.log("Register", req.body);
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const user: User = {username, password};
+
+    try {
+        const registration = await saveUser(user);
+        res.status(201).send(registration);
+    }
+});
 
 router.post("/login", async (req,res) => {
     console.log("Login");
