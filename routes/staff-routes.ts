@@ -75,7 +75,7 @@ staffRoutes.delete('/deleteStaff/:code', async (req,res) => {
     }
 });
 
-staffRoutes.get('/getAllStaff', async (req,res) => {
+staffRoutes.get('/getAllStaff', async (req: express.Request, res: express.Response) => {
     try {
         const result = await getAllStaffService();
         if (result) {
