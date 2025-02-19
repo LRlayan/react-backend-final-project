@@ -6,11 +6,13 @@ import equipmentRoutes from "./routes/equipment-routes";
 import cropRoutes from "./routes/crop-routes";
 import fieldRoutes from "./routes/field-routes";
 import logRoutes from "./routes/log-routes";
+import authRoutes from "./routes/auth-routes";
+import {authenticateToken} from "./middleware/authenticate";
 import dotenv from "dotenv";
+import cors from 'cors';
 
-const cors = require('cors');
-const app = express();
 dotenv.config();
+const app = express();
 
 app.use(express.json());
 app.use(cors({
@@ -19,22 +21,23 @@ app.use(cors({
     allowedHeaders: ['Content-Type','Authorization'],
     credentials: true,
 }));
+
+app.use('/api/v1/auth', authRoutes);
 app.use('/uploads', express.static('uploads'));
 
-mongoose.connect(process.env.DATABASE_URL as string)
+mongoose.connect(process.env.DATABASE_URL)
     .then(() => {
         console.log("Connected to MongoDB");
     })
     .catch(err => {
         console.error("Failed to connect to MongoDB", err);
     });
+console.log("Auth token :: ", authenticateToken);
 
-
-app.use('/api/v1/crop',cropRoutes);
-app.use('/api/v1/field',fieldRoutes);
-app.use('/api/v1/log',logRoutes);
-app.use('/api/v1/staff',staffRoutes);
-app.use('/api/v1/equipment',equipmentRoutes);
-app.use('/api/v1/vehicle',vehicleRoutes);
-
+app.use('/api/v1/crop',authenticateToken,cropRoutes);
+app.use('/api/v1/field',authenticateToken,fieldRoutes);
+app.use('/api/v1/log',authenticateToken,logRoutes);
+app.use('/api/v1/staff',authenticateToken,staffRoutes);
+app.use('/api/v1/equipment',authenticateToken,equipmentRoutes);
+app.use('/api/v1/vehicle',authenticateToken,vehicleRoutes);
 app.listen(3000, () => console.log("Server start 3000 port"));
