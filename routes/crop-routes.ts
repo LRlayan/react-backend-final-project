@@ -8,7 +8,7 @@ const cropRoutes = express.Router();
 const imageUploader = new ImageUploader();
 const upload = imageUploader.uploader('crop');
 
-cropRoutes.post('/saveCrop', upload.single('image'), async (req,res) => {
+cropRoutes.post('/saveCrop', upload.single('image'), async (req: express.Request,res: express.Response) => {
     try {
         const { name, scientificName, category, season, assignFields, assignLogs } = req.body;
         const image = req.file ? req.file.filename : null;
@@ -69,7 +69,7 @@ cropRoutes.delete('/deleteCrop/:code', async (req,res) => {
     }
 });
 
-cropRoutes.get('/getAllCrop', async (req,res) => {
+cropRoutes.get('/getAllCrop', async (req: express.Request, res: express.Response) => {
     try {
         const result = await getAllCropService();
         if (result) {
