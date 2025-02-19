@@ -1,34 +1,40 @@
 import User from "../schema/user";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
-interface User {
-    username: string;
-    email: string;
-    password: string;
-}
-
-export async function saveUser(user: User) {
-    const hashedPassword = await bcrypt.hash(user.password, 10);
+export async function saveUser(user: { username: string; email: string; password: string }) {
     try {
-        user.password = hashedPassword;
-        const newUser = new User(user);
-        const result = await newUser.save();
-        if (result) {
-            return result;
-        } else {
-            return { message: "Failed to save user. Please try again."}
-            throw new Error("Failed to save user. Please try again.");
-        }
-    } catch (e) {
-        console.error("Failed to save user:", e);
-        throw e;
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+
+        const newUser = new User({
+            username: user.username,
+            email: user.email,
+            password: hashedPassword,
+        });
+
+        await newUser.save();
+        return newUser;
+    } catch (error) {
+        console.error("Error saving user:", error);
+        throw error;
     }
 }
 
-export async function verifyUserCredentials(user: User) {
-    const findUser: User | null = await User.findOne({username: user.username});
-    if (!user) {
-        return false;
+export async function verifyUserCredentials( username: string, password: string ) {
+    try {
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return false;
+        }
+
+        if (!user.password) {
+            throw new Error("User password not found.");
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        return passwordMatch;
+    } catch (error) {
+        console.error("Error verifying user credentials:", error);
+        throw error;
     }
-    return await bcrypt.compare(user.password, findUser.password);
 }
