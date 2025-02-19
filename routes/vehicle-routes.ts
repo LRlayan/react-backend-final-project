@@ -64,7 +64,7 @@ vehicleRoutes.delete('/deleteVehicle/:code', async (req,res) => {
     }
 });
 
-vehicleRoutes.get('/getALlVehicle', async (req,res) => {
+vehicleRoutes.get('/getALlVehicle', async (req: express.Request, res: express.Response) => {
     try {
          const result = await getAllVehicleService();
          if (result) {
