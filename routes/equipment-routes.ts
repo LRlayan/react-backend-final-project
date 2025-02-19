@@ -68,7 +68,7 @@ equipmentRoutes.delete('/deleteEquipment/:code', async (req,res) => {
     }
 })
 
-equipmentRoutes.get('/getAllEquipment', async (req,res) => {
+equipmentRoutes.get('/getAllEquipment', async (req: express.Request, res: express.Response) => {
     try {
         const result = await getAllEquipmentService();
         if (result) {

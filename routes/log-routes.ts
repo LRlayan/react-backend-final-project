@@ -75,7 +75,7 @@ logRoutes.delete('/deleteLog/:code', async (req,res) => {
     }
 });
 
-logRoutes.get('/getALlLog', async (req,res) => {
+logRoutes.get('/getALlLog', async (req: express.Request, res: express.Response) => {
     try {
          const result = await getAllLogService();
          if (result) {

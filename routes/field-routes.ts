@@ -80,7 +80,7 @@ fieldRoutes.delete('/deleteField/:code', async (req,res) =>{
     }
 });
 
-fieldRoutes.get('/getAllField', async (req,res) => {
+fieldRoutes.get('/getAllField', async (req: express.Request,res: express.Response) => {
     try {
         const result = await getAllFieldService();
         if (result) {
