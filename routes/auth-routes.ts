@@ -18,7 +18,7 @@ router.post("/login", async (req, res) => {
         const isVerified =  await verifyUserCredentialsService(username,password);
 
         if(isVerified){
-            const token = jwt.sign({ username }, process.env.SECRET_KEY as Secret, {expiresIn: "50m"});
+            const token = jwt.sign({ username }, process.env.SECRET_KEY as Secret, {expiresIn: "1m"});
             const refreshToken = jwt.sign({ username }, process.env.REFRESH_TOKEN as Secret, {expiresIn: "7d"});
             res.json({accessToken : token, refreshToken : refreshToken});
         }else{
@@ -54,7 +54,7 @@ router.post("/refresh-token", async (req, res) => {
 
     try{
         const payload = jwt.verify(refresh_token as string, process.env.REFRESH_TOKEN as Secret) as {username: string, iat: number};
-        const token = jwt.sign({ username: payload.username }, process.env.SECRET_KEY as Secret, {expiresIn: "50m"});
+        const token = jwt.sign({ username: payload.username }, process.env.SECRET_KEY as Secret, {expiresIn: "7d"});
         res.json({accessToken : token});
     }catch(err){
         console.log(err);
