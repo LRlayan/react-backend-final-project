@@ -25,7 +25,7 @@ app.use(cors({
 app.use('/api/v1/auth', authRoutes);
 app.use('/uploads', express.static('uploads'));
 
-mongoose.connect(process.env.DATABASE_URL)
+mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
     .then(() => {
         console.log("Connected to MongoDB");
     })
