@@ -32,7 +32,6 @@ mongoose.connect("mongodb://localhost:27017/cropMonitoringDB")
     .catch(err => {
         console.error("Failed to connect to MongoDB", err);
     });
-console.log("Auth token :: ", authenticateToken);
 
 app.use('/api/v1/crop',authenticateToken,cropRoutes);
 app.use('/api/v1/field',authenticateToken,fieldRoutes);
@@ -40,4 +39,4 @@ app.use('/api/v1/log',authenticateToken,logRoutes);
 app.use('/api/v1/staff',authenticateToken,staffRoutes);
 app.use('/api/v1/equipment',authenticateToken,equipmentRoutes);
 app.use('/api/v1/vehicle',authenticateToken,vehicleRoutes);
-app.listen(3000, () => console.log("Server start 3000 port"));
+app.listen(3001, () => console.log("Server start 3001 port"));
